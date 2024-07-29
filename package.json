@@ -1,0 +1,26 @@
+{
+  "name": "rewardable.app",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "yarn workspace @rewardable/api start:dev",
+    "dev:frontend": "yarn workspace @rewardable/frontend next dev",
+    "typecheck": "yarn workspaces run typecheck",
+    "lint:ts": "yarn workspaces run lint:ts",
+    "test": "yarn workspaces run test",
+    "format": "yarn workspaces run format",
+    "prepare": "husky install",
+    "precommit": "lint-staged"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^15.1.0",
+    "prettier": "^3.1.0"
+  },
+  "packageManager": "yarn@1.22.22"
+}

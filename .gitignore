@@ -1,0 +1,8 @@
+node_modules
+/.idea
+
+## Hardhat files ##
+packages/hardhat/*.txt
+packages/hardhat/cache
+packages/hardhat/artifacts
+packages/hardhat/deployments
