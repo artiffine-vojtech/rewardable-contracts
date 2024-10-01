@@ -40,8 +40,6 @@ contract UniV3IncentivesController is ERC721Holder, Adminable {
         address token0;
         // Address of token1.
         address token1;
-        // Fee in basis points.
-        uint24 fee;
         // Minimum tick range.
         int24 tickLower;
         // Maximum tick range.
@@ -92,6 +90,7 @@ contract UniV3IncentivesController is ERC721Holder, Adminable {
     event Deposited(address indexed user, uint indexed nftId, uint indexed liquidity);
     event Withdrawn(address indexed user, uint indexed nftId, uint indexed liquidity);
     event RewardPaid(address indexed user, address indexed token, uint amount);
+    event PositionRangesChanged(int24 indexed tickLower, int24 indexed tickUpper);
 
     constructor(INonfungiblePositionManager _nft, PositionConfig memory _posConfig, address _rewardToken) Ownable(msg.sender) {
         require(address(_nft) != address(0), 'nft zero address');
@@ -117,7 +116,7 @@ contract UniV3IncentivesController is ERC721Holder, Adminable {
                 ,
                 address _token0,
                 address _token1,
-                uint24 _fee,
+                ,
                 int24 _tickLower,
                 int24 _tickUpper,
                 uint128 liquidity,
@@ -126,9 +125,8 @@ contract UniV3IncentivesController is ERC721Holder, Adminable {
                 ,
 
             ) = INonfungiblePositionManager(address(nft)).positions(nftId);
-            require(posConfig.tickLower == _tickLower, 'Invalid lower tick');
-            require(posConfig.tickUpper == _tickUpper, 'Invalid upper tick');
-            require(posConfig.fee == _fee, 'Invalid fee');
+            require(posConfig.tickLower <= _tickLower, 'Invalid lower tick');
+            require(posConfig.tickUpper >= _tickUpper, 'Invalid upper tick');
             require(posConfig.token0 == _token0, 'Invalid token0');
             require(posConfig.token1 == _token1, 'Invalid token1');
             require(liquidity > 0, 'Invalid liquidity');
@@ -205,6 +203,13 @@ contract UniV3IncentivesController is ERC721Holder, Adminable {
     }
 
     /** OWNER FUNCTIONS **/
+
+    function changePositionRanges(int24 _tickLower, int24 _tickUpper) external onlyOwner {
+        require(_tickLower < _tickUpper, 'tick lower is gte tick upper');
+        posConfig.tickLower = _tickLower;
+        posConfig.tickUpper = _tickUpper;
+        emit PositionRangesChanged(_tickLower, _tickUpper);
+    }
 
     function addReward(address _rewardToken) external onlyAdmin {
         _addReward(_rewardToken);

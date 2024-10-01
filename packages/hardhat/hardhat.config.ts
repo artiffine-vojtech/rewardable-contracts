@@ -7,8 +7,10 @@ import { task } from 'hardhat/config'
 import { HardhatUserConfig } from 'hardhat/types'
 import '@nomiclabs/hardhat-etherscan'
 import 'hardhat-uniswap'
+import 'hardhat-deploy'
 import 'hardhat-contract-sizer'
 import '@openzeppelin/hardhat-upgrades'
+import '@layerzerolabs/toolbox-hardhat'
 
 import { config as envConfig } from './.env/vars'
 

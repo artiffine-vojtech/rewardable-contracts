@@ -31,21 +31,13 @@ export declare namespace UniV3IncentivesController {
   export type PositionConfigStruct = {
     token0: PromiseOrValue<string>;
     token1: PromiseOrValue<string>;
-    fee: PromiseOrValue<BigNumberish>;
     tickLower: PromiseOrValue<BigNumberish>;
     tickUpper: PromiseOrValue<BigNumberish>;
   };
 
-  export type PositionConfigStructOutput = [
-    string,
-    string,
-    number,
-    number,
-    number
-  ] & {
+  export type PositionConfigStructOutput = [string, string, number, number] & {
     token0: string;
     token1: string;
-    fee: number;
     tickLower: number;
     tickUpper: number;
   };
@@ -75,6 +67,7 @@ export interface UniV3IncentivesControllerInterface extends utils.Interface {
   functions: {
     "addAdmin(address)": FunctionFragment;
     "addReward(address)": FunctionFragment;
+    "changePositionRanges(int24,int24)": FunctionFragment;
     "claimableRewards(address)": FunctionFragment;
     "deposit(uint256[])": FunctionFragment;
     "getAllUserNfts(address)": FunctionFragment;
@@ -102,6 +95,7 @@ export interface UniV3IncentivesControllerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addAdmin"
       | "addReward"
+      | "changePositionRanges"
       | "claimableRewards"
       | "deposit"
       | "getAllUserNfts"
@@ -132,6 +126,10 @@ export interface UniV3IncentivesControllerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addReward",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "changePositionRanges",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "claimableRewards",
@@ -221,6 +219,10 @@ export interface UniV3IncentivesControllerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "addAdmin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addReward", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "changePositionRanges",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "claimableRewards",
     data: BytesLike
   ): Result;
@@ -283,6 +285,7 @@ export interface UniV3IncentivesControllerInterface extends utils.Interface {
     "AdminRemoved(address)": EventFragment;
     "Deposited(address,uint256,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "PositionRangesChanged(int24,int24)": EventFragment;
     "RewardPaid(address,address,uint256)": EventFragment;
     "Withdrawn(address,uint256,uint256)": EventFragment;
   };
@@ -291,6 +294,7 @@ export interface UniV3IncentivesControllerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AdminRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Deposited"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PositionRangesChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RewardPaid"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Withdrawn"): EventFragment;
 }
@@ -332,6 +336,18 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface PositionRangesChangedEventObject {
+  tickLower: number;
+  tickUpper: number;
+}
+export type PositionRangesChangedEvent = TypedEvent<
+  [number, number],
+  PositionRangesChangedEventObject
+>;
+
+export type PositionRangesChangedEventFilter =
+  TypedEventFilter<PositionRangesChangedEvent>;
 
 export interface RewardPaidEventObject {
   user: string;
@@ -391,6 +407,12 @@ export interface UniV3IncentivesController extends BaseContract {
 
     addReward(
       _rewardToken: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    changePositionRanges(
+      _tickLower: PromiseOrValue<BigNumberish>,
+      _tickUpper: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -459,10 +481,9 @@ export interface UniV3IncentivesController extends BaseContract {
     posConfig(
       overrides?: CallOverrides
     ): Promise<
-      [string, string, number, number, number] & {
+      [string, string, number, number] & {
         token0: string;
         token1: string;
-        fee: number;
         tickLower: number;
         tickUpper: number;
       }
@@ -529,6 +550,12 @@ export interface UniV3IncentivesController extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  changePositionRanges(
+    _tickLower: PromiseOrValue<BigNumberish>,
+    _tickUpper: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   claimableRewards(
     _account: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -586,10 +613,9 @@ export interface UniV3IncentivesController extends BaseContract {
   posConfig(
     overrides?: CallOverrides
   ): Promise<
-    [string, string, number, number, number] & {
+    [string, string, number, number] & {
       token0: string;
       token1: string;
-      fee: number;
       tickLower: number;
       tickUpper: number;
     }
@@ -656,6 +682,12 @@ export interface UniV3IncentivesController extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    changePositionRanges(
+      _tickLower: PromiseOrValue<BigNumberish>,
+      _tickUpper: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     claimableRewards(
       _account: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -713,10 +745,9 @@ export interface UniV3IncentivesController extends BaseContract {
     posConfig(
       overrides?: CallOverrides
     ): Promise<
-      [string, string, number, number, number] & {
+      [string, string, number, number] & {
         token0: string;
         token1: string;
-        fee: number;
         tickLower: number;
         tickUpper: number;
       }
@@ -804,6 +835,15 @@ export interface UniV3IncentivesController extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
+    "PositionRangesChanged(int24,int24)"(
+      tickLower?: PromiseOrValue<BigNumberish> | null,
+      tickUpper?: PromiseOrValue<BigNumberish> | null
+    ): PositionRangesChangedEventFilter;
+    PositionRangesChanged(
+      tickLower?: PromiseOrValue<BigNumberish> | null,
+      tickUpper?: PromiseOrValue<BigNumberish> | null
+    ): PositionRangesChangedEventFilter;
+
     "RewardPaid(address,address,uint256)"(
       user?: PromiseOrValue<string> | null,
       token?: PromiseOrValue<string> | null,
@@ -835,6 +875,12 @@ export interface UniV3IncentivesController extends BaseContract {
 
     addReward(
       _rewardToken: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    changePositionRanges(
+      _tickLower: PromiseOrValue<BigNumberish>,
+      _tickUpper: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -945,6 +991,12 @@ export interface UniV3IncentivesController extends BaseContract {
 
     addReward(
       _rewardToken: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    changePositionRanges(
+      _tickLower: PromiseOrValue<BigNumberish>,
+      _tickUpper: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

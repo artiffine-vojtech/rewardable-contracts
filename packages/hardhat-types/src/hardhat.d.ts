@@ -13,6 +13,134 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
+      name: "DVNOptions",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DVNOptions__factory>;
+    getContractFactory(
+      name: "ILayerZeroEndpointV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILayerZeroEndpointV2__factory>;
+    getContractFactory(
+      name: "ILayerZeroReceiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILayerZeroReceiver__factory>;
+    getContractFactory(
+      name: "IMessageLib",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMessageLib__factory>;
+    getContractFactory(
+      name: "IMessageLibManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMessageLibManager__factory>;
+    getContractFactory(
+      name: "IMessagingChannel",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMessagingChannel__factory>;
+    getContractFactory(
+      name: "IMessagingComposer",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMessagingComposer__factory>;
+    getContractFactory(
+      name: "IMessagingContext",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMessagingContext__factory>;
+    getContractFactory(
+      name: "ISendLib",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ISendLib__factory>;
+    getContractFactory(
+      name: "AddressCast",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AddressCast__factory>;
+    getContractFactory(
+      name: "ExecutorOptions",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ExecutorOptions__factory>;
+    getContractFactory(
+      name: "IOAppCore",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IOAppCore__factory>;
+    getContractFactory(
+      name: "IOAppMsgInspector",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IOAppMsgInspector__factory>;
+    getContractFactory(
+      name: "IOAppOptionsType3",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IOAppOptionsType3__factory>;
+    getContractFactory(
+      name: "IOAppReceiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IOAppReceiver__factory>;
+    getContractFactory(
+      name: "OAppOptionsType3",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OAppOptionsType3__factory>;
+    getContractFactory(
+      name: "OptionsBuilder",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OptionsBuilder__factory>;
+    getContractFactory(
+      name: "OApp",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OApp__factory>;
+    getContractFactory(
+      name: "OAppCore",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OAppCore__factory>;
+    getContractFactory(
+      name: "OAppReceiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OAppReceiver__factory>;
+    getContractFactory(
+      name: "OAppSender",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OAppSender__factory>;
+    getContractFactory(
+      name: "IOAppPreCrimeSimulator",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IOAppPreCrimeSimulator__factory>;
+    getContractFactory(
+      name: "IPreCrime",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IPreCrime__factory>;
+    getContractFactory(
+      name: "OAppPreCrimeSimulator",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OAppPreCrimeSimulator__factory>;
+    getContractFactory(
+      name: "IOFT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IOFT__factory>;
+    getContractFactory(
+      name: "OFT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OFT__factory>;
+    getContractFactory(
+      name: "OFTCore",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OFTCore__factory>;
+    getContractFactory(
+      name: "Ownable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Ownable__factory>;
+    getContractFactory(
+      name: "ERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20__factory>;
+    getContractFactory(
+      name: "IERC20Permit",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Permit__factory>;
+    getContractFactory(
+      name: "IERC20Metadata",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Metadata__factory>;
+    getContractFactory(
+      name: "IERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20__factory>;
+    getContractFactory(
       name: "OwnableUpgradeable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OwnableUpgradeable__factory>;
@@ -125,6 +253,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Math__factory>;
     getContractFactory(
+      name: "SafeCast",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SafeCast__factory>;
+    getContractFactory(
       name: "Nonces",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Nonces__factory>;
@@ -137,6 +269,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Strings__factory>;
     getContractFactory(
+      name: "INFTWithLevel",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.INFTWithLevel__factory>;
+    getContractFactory(
       name: "INonfungiblePositionManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.INonfungiblePositionManager__factory>;
@@ -145,21 +281,49 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ITokenControllerCommons__factory>;
     getContractFactory(
+      name: "ITokenEmissionsController",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ITokenEmissionsController__factory>;
+    getContractFactory(
       name: "ITokenIncentivesController",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ITokenIncentivesController__factory>;
+    getContractFactory(
+      name: "ITokenProxy",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ITokenProxy__factory>;
     getContractFactory(
       name: "RewardDistributorMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RewardDistributorMock__factory>;
     getContractFactory(
-      name: "Rewardable",
+      name: "IOFTEndpointGetter",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Rewardable__factory>;
+    ): Promise<Contracts.IOFTEndpointGetter__factory>;
     getContractFactory(
-      name: "RewardDistributorV1",
+      name: "RewardDistributorV1LZMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.RewardDistributorV1__factory>;
+    ): Promise<Contracts.RewardDistributorV1LZMock__factory>;
+    getContractFactory(
+      name: "RewardableLZ",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.RewardableLZ__factory>;
+    getContractFactory(
+      name: "IOFTEndpointGetter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IOFTEndpointGetter__factory>;
+    getContractFactory(
+      name: "RewardDistributorV1LZ",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.RewardDistributorV1LZ__factory>;
+    getContractFactory(
+      name: "TokenEmissionsController",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenEmissionsController__factory>;
+    getContractFactory(
+      name: "TokenProxy",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenProxy__factory>;
     getContractFactory(
       name: "UniV3IncentivesController",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -168,11 +332,167 @@ declare module "hardhat/types/runtime" {
       name: "Adminable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Adminable__factory>;
-    getContractFactory(
-      name: "Multicall",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Multicall__factory>;
 
+    getContractAt(
+      name: "DVNOptions",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DVNOptions>;
+    getContractAt(
+      name: "ILayerZeroEndpointV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ILayerZeroEndpointV2>;
+    getContractAt(
+      name: "ILayerZeroReceiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ILayerZeroReceiver>;
+    getContractAt(
+      name: "IMessageLib",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMessageLib>;
+    getContractAt(
+      name: "IMessageLibManager",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMessageLibManager>;
+    getContractAt(
+      name: "IMessagingChannel",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMessagingChannel>;
+    getContractAt(
+      name: "IMessagingComposer",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMessagingComposer>;
+    getContractAt(
+      name: "IMessagingContext",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMessagingContext>;
+    getContractAt(
+      name: "ISendLib",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ISendLib>;
+    getContractAt(
+      name: "AddressCast",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AddressCast>;
+    getContractAt(
+      name: "ExecutorOptions",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ExecutorOptions>;
+    getContractAt(
+      name: "IOAppCore",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IOAppCore>;
+    getContractAt(
+      name: "IOAppMsgInspector",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IOAppMsgInspector>;
+    getContractAt(
+      name: "IOAppOptionsType3",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IOAppOptionsType3>;
+    getContractAt(
+      name: "IOAppReceiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IOAppReceiver>;
+    getContractAt(
+      name: "OAppOptionsType3",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OAppOptionsType3>;
+    getContractAt(
+      name: "OptionsBuilder",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OptionsBuilder>;
+    getContractAt(
+      name: "OApp",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OApp>;
+    getContractAt(
+      name: "OAppCore",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OAppCore>;
+    getContractAt(
+      name: "OAppReceiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OAppReceiver>;
+    getContractAt(
+      name: "OAppSender",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OAppSender>;
+    getContractAt(
+      name: "IOAppPreCrimeSimulator",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IOAppPreCrimeSimulator>;
+    getContractAt(
+      name: "IPreCrime",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IPreCrime>;
+    getContractAt(
+      name: "OAppPreCrimeSimulator",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OAppPreCrimeSimulator>;
+    getContractAt(
+      name: "IOFT",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IOFT>;
+    getContractAt(
+      name: "OFT",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OFT>;
+    getContractAt(
+      name: "OFTCore",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OFTCore>;
+    getContractAt(
+      name: "Ownable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "ERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20>;
+    getContractAt(
+      name: "IERC20Permit",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Permit>;
+    getContractAt(
+      name: "IERC20Metadata",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Metadata>;
+    getContractAt(
+      name: "IERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20>;
     getContractAt(
       name: "OwnableUpgradeable",
       address: string,
@@ -314,6 +634,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Math>;
     getContractAt(
+      name: "SafeCast",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SafeCast>;
+    getContractAt(
       name: "Nonces",
       address: string,
       signer?: ethers.Signer
@@ -329,6 +654,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Strings>;
     getContractAt(
+      name: "INFTWithLevel",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.INFTWithLevel>;
+    getContractAt(
       name: "INonfungiblePositionManager",
       address: string,
       signer?: ethers.Signer
@@ -339,25 +669,60 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ITokenControllerCommons>;
     getContractAt(
+      name: "ITokenEmissionsController",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ITokenEmissionsController>;
+    getContractAt(
       name: "ITokenIncentivesController",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ITokenIncentivesController>;
+    getContractAt(
+      name: "ITokenProxy",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ITokenProxy>;
     getContractAt(
       name: "RewardDistributorMock",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.RewardDistributorMock>;
     getContractAt(
-      name: "Rewardable",
+      name: "IOFTEndpointGetter",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.Rewardable>;
+    ): Promise<Contracts.IOFTEndpointGetter>;
     getContractAt(
-      name: "RewardDistributorV1",
+      name: "RewardDistributorV1LZMock",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.RewardDistributorV1>;
+    ): Promise<Contracts.RewardDistributorV1LZMock>;
+    getContractAt(
+      name: "RewardableLZ",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RewardableLZ>;
+    getContractAt(
+      name: "IOFTEndpointGetter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IOFTEndpointGetter>;
+    getContractAt(
+      name: "RewardDistributorV1LZ",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RewardDistributorV1LZ>;
+    getContractAt(
+      name: "TokenEmissionsController",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenEmissionsController>;
+    getContractAt(
+      name: "TokenProxy",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenProxy>;
     getContractAt(
       name: "UniV3IncentivesController",
       address: string,
@@ -368,11 +733,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Adminable>;
-    getContractAt(
-      name: "Multicall",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Multicall>;
 
     // default types
     getContractFactory(

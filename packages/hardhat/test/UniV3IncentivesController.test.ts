@@ -63,7 +63,6 @@ describe('UniV3IncentivesController', function () {
     const posConfig = {
       token0: position.token0,
       token1: position.token1,
-      fee: position.fee,
       tickLower: position.tickLower,
       tickUpper: position.tickUpper,
     }
@@ -302,7 +301,6 @@ describe('UniV3IncentivesController', function () {
       const savedPosConfig = await incentivesController.posConfig()
       expect(savedPosConfig.token0).to.be.deep.eq(posConfig.token0)
       expect(savedPosConfig.token1).to.be.deep.eq(posConfig.token1)
-      expect(savedPosConfig.fee).to.be.deep.eq(posConfig.fee)
       expect(savedPosConfig.tickLower).to.be.deep.eq(posConfig.tickLower)
       expect(savedPosConfig.tickUpper).to.be.deep.eq(posConfig.tickUpper)
     })
@@ -365,12 +363,16 @@ describe('UniV3IncentivesController', function () {
     })
 
     it('Should revert if nft token1 is incorrect', async () => {
-      const { incentivesController, nft, owner, tokenB, reward } =
-        await loadFixture(deployContractFixture)
+      const { incentivesController, nft, owner, tokenA } = await loadFixture(
+        deployContractFixture
+      )
+      let badToken0 = await env.uniswapV3.createERC20('TOKEN0', 'TOKEN0', owner)
+      let badToken1 = await env.uniswapV3.createERC20('TOKEN0', 'TOKEN0', owner)
+
       var mintOptions = {
         signer: owner,
-        token0: tokenB.address,
-        token1: reward.address,
+        token0: tokenA.address,
+        token1: badToken1.address,
         fee: 3000,
         amount0Desired: 1000,
         amount1Desired: 1000,
@@ -388,18 +390,18 @@ describe('UniV3IncentivesController', function () {
     })
 
     it('Should revert if nft lowerTick is incorrect', async () => {
-      const { incentivesController, nft, owner, tokenA, reward } =
+      const { incentivesController, nft, owner, tokenA, tokenB } =
         await loadFixture(deployContractFixture)
       var options = {
         signer: owner,
         token0: tokenA,
-        token1: reward,
+        token1: tokenB,
         fee: 3000,
         amount0Desired: 1000,
         amount1Desired: 1000,
         price: 1,
         tickLower: -240,
-        tickUpper: 240,
+        tickUpper: 120,
       }
       const incorrectFee = await mintPosition(nft, options)
       await nft
@@ -410,12 +412,12 @@ describe('UniV3IncentivesController', function () {
     })
 
     it('Should revert if nft upperTick is incorrect', async () => {
-      const { incentivesController, nft, owner, tokenA, reward } =
+      const { incentivesController, nft, owner, tokenA, tokenB } =
         await loadFixture(deployContractFixture)
       var options = {
         signer: owner,
         token0: tokenA,
-        token1: reward,
+        token1: tokenB,
         fee: 3000,
         amount0Desired: 1000,
         amount1Desired: 1000,
@@ -442,6 +444,56 @@ describe('UniV3IncentivesController', function () {
         incentivesController.address
       )
       expect(await nft.ownerOf(userNftId2)).to.be.eq(
+        incentivesController.address
+      )
+    })
+
+    it('Should transfer nfts correctly with different range', async () => {
+      const { incentivesController, nft, owner, tokenA, tokenB } =
+        await loadFixture(deployContractFixture)
+      var options = {
+        signer: owner,
+        token0: tokenA,
+        token1: tokenB,
+        fee: 3000,
+        amount0Desired: 1000,
+        amount1Desired: 1000,
+        price: 1,
+        tickLower: -60,
+        tickUpper: 60,
+      }
+      const incorrectFee = await mintPosition(nft, options)
+      await nft
+        .connect(owner)
+        .approve(incentivesController.address, incorrectFee)
+      await incentivesController.connect(owner).deposit([incorrectFee])
+
+      expect(await nft.ownerOf(incorrectFee)).to.be.eq(
+        incentivesController.address
+      )
+    })
+
+    it('Should transfer nfts correctly with different fee', async () => {
+      const { incentivesController, nft, owner, tokenA, tokenB } =
+        await loadFixture(deployContractFixture)
+      var options = {
+        signer: owner,
+        token0: tokenA,
+        token1: tokenB,
+        fee: 500,
+        amount0Desired: 1000,
+        amount1Desired: 1000,
+        price: 1,
+        tickLower: -60,
+        tickUpper: 60,
+      }
+      const incorrectFee = await mintPosition(nft, options)
+      await nft
+        .connect(owner)
+        .approve(incentivesController.address, incorrectFee)
+      await incentivesController.connect(owner).deposit([incorrectFee])
+
+      expect(await nft.ownerOf(incorrectFee)).to.be.eq(
         incentivesController.address
       )
     })
@@ -835,6 +887,45 @@ describe('UniV3IncentivesController', function () {
       expect(await reward.balanceOf(user2.address)).to.be.gte(
         K1_TOKENS.mul(2).div(3)
       )
+    })
+  })
+
+  describe('ChangePositionRanges', () => {
+    it('Should revert if caller is not owner', async () => {
+      const { incentivesController, user } = await loadFixture(
+        deployContractFixture
+      )
+      let action = incentivesController
+        .connect(user)
+        .changePositionRanges(-1000, 1000)
+      await expect(action).to.be.revertedWith('OwnableUnauthorizedAccount')
+    })
+
+    it('Should revert if tick lower is gte tick upper', async () => {
+      const { incentivesController, owner } = await loadFixture(
+        deployContractFixture
+      )
+      let action = incentivesController
+        .connect(owner)
+        .changePositionRanges(100, 100)
+      await expect(action).to.be.revertedWith('tick lower is gte tick upper')
+
+      let action2 = incentivesController
+        .connect(owner)
+        .changePositionRanges(101, 100)
+      await expect(action2).to.be.revertedWith('tick lower is gte tick upper')
+    })
+
+    it('Should change posConfig correctly', async () => {
+      const { incentivesController, owner, posConfig } = await loadFixture(
+        deployContractFixture
+      )
+      await incentivesController
+        .connect(owner)
+        .changePositionRanges(-1000, 1000)
+      const posConfigAfter = await incentivesController.posConfig()
+      expect(posConfigAfter.tickLower).to.be.eq(-1000)
+      expect(posConfigAfter.tickUpper).to.be.eq(1000)
     })
   })
 })

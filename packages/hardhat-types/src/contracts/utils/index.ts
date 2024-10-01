@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Adminable } from "./Adminable";
-export type { Multicall } from "./Multicall";

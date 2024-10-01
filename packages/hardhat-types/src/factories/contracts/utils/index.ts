@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export { Adminable__factory } from "./Adminable__factory";
-export { Multicall__factory } from "./Multicall__factory";
