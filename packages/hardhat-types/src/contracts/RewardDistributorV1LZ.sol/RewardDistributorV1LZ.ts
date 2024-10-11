@@ -53,6 +53,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
   functions: {
     "UPGRADE_INTERFACE_VERSION()": FunctionFragment;
     "burnFee()": FunctionFragment;
+    "burnFees(uint256)": FunctionFragment;
     "chainId()": FunctionFragment;
     "createTask(uint256,address)": FunctionFragment;
     "createTaskWithPermit(uint256,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
@@ -65,6 +66,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     "platformFee()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "quoteSend(address,uint256,(uint32,uint128,uint128,uint128))": FunctionFragment;
+    "recoverFees(uint256,address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "rewardToken()": FunctionFragment;
     "setBurnFee(uint256)": FunctionFragment;
@@ -74,6 +76,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     "setPlatformFee(uint256)": FunctionFragment;
     "setTokenAdmin(address)": FunctionFragment;
     "taskRewards(uint256)": FunctionFragment;
+    "toBurn()": FunctionFragment;
     "tokenAdmin()": FunctionFragment;
     "topUpTask(uint256,uint256,address)": FunctionFragment;
     "topUpTaskWithPermit(uint256,uint256,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
@@ -87,6 +90,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "UPGRADE_INTERFACE_VERSION"
       | "burnFee"
+      | "burnFees"
       | "chainId"
       | "createTask"
       | "createTaskWithPermit"
@@ -99,6 +103,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
       | "platformFee"
       | "proxiableUUID"
       | "quoteSend"
+      | "recoverFees"
       | "renounceOwnership"
       | "rewardToken"
       | "setBurnFee"
@@ -108,6 +113,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
       | "setPlatformFee"
       | "setTokenAdmin"
       | "taskRewards"
+      | "toBurn"
       | "tokenAdmin"
       | "topUpTask"
       | "topUpTaskWithPermit"
@@ -122,6 +128,10 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "burnFee", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "burnFees",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "chainId", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "createTask",
@@ -186,6 +196,10 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "recoverFees",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
@@ -221,6 +235,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     functionFragment: "taskRewards",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(functionFragment: "toBurn", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "tokenAdmin",
     values?: undefined
@@ -273,6 +288,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "burnFee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "burnFees", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createTask", data: BytesLike): Result;
   decodeFunctionResult(
@@ -307,6 +323,10 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "quoteSend", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "recoverFees",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
@@ -339,6 +359,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     functionFragment: "taskRewards",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "toBurn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokenAdmin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "topUpTask", data: BytesLike): Result;
   decodeFunctionResult(
@@ -364,6 +385,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
 
   events: {
     "BurnFeeSet(uint256)": EventFragment;
+    "Burned(uint256)": EventFragment;
     "FeeReceiverSet(address)": EventFragment;
     "Initialized(uint64)": EventFragment;
     "MaxDailyWithdrawalSet(uint256)": EventFragment;
@@ -371,6 +393,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "PlatformFeeSet(uint256)": EventFragment;
     "ProcessedFees(uint256,uint256)": EventFragment;
+    "Recovered(uint256,address)": EventFragment;
     "TaskCreated(uint256,uint256,address)": EventFragment;
     "TaskToppedUp(uint256,uint256,address)": EventFragment;
     "TokenAdminSet(address)": EventFragment;
@@ -379,6 +402,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "BurnFeeSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Burned"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeReceiverSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MaxDailyWithdrawalSet"): EventFragment;
@@ -386,6 +410,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PlatformFeeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProcessedFees"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Recovered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TaskCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TaskToppedUp"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAdminSet"): EventFragment;
@@ -399,6 +424,13 @@ export interface BurnFeeSetEventObject {
 export type BurnFeeSetEvent = TypedEvent<[BigNumber], BurnFeeSetEventObject>;
 
 export type BurnFeeSetEventFilter = TypedEventFilter<BurnFeeSetEvent>;
+
+export interface BurnedEventObject {
+  burnAmount: BigNumber;
+}
+export type BurnedEvent = TypedEvent<[BigNumber], BurnedEventObject>;
+
+export type BurnedEventFilter = TypedEventFilter<BurnedEvent>;
 
 export interface FeeReceiverSetEventObject {
   feeReceiver: string;
@@ -471,6 +503,17 @@ export type ProcessedFeesEvent = TypedEvent<
 >;
 
 export type ProcessedFeesEventFilter = TypedEventFilter<ProcessedFeesEvent>;
+
+export interface RecoveredEventObject {
+  recoverAmount: BigNumber;
+  recipient: string;
+}
+export type RecoveredEvent = TypedEvent<
+  [BigNumber, string],
+  RecoveredEventObject
+>;
+
+export type RecoveredEventFilter = TypedEventFilter<RecoveredEvent>;
 
 export interface TaskCreatedEventObject {
   id: BigNumber;
@@ -553,6 +596,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
 
     burnFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    burnFees(
+      _burnAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     chainId(overrides?: CallOverrides): Promise<[number]>;
 
     createTask(
@@ -607,6 +655,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { nativeFee: BigNumber }>;
 
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -647,6 +701,8 @@ export interface RewardDistributorV1LZ extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    toBurn(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     tokenAdmin(overrides?: CallOverrides): Promise<[string]>;
 
@@ -697,6 +753,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
   UPGRADE_INTERFACE_VERSION(overrides?: CallOverrides): Promise<string>;
 
   burnFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+  burnFees(
+    _burnAmount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   chainId(overrides?: CallOverrides): Promise<number>;
 
@@ -752,6 +813,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  recoverFees(
+    _recoverAmount: PromiseOrValue<BigNumberish>,
+    _recipient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -792,6 +859,8 @@ export interface RewardDistributorV1LZ extends BaseContract {
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  toBurn(overrides?: CallOverrides): Promise<BigNumber>;
 
   tokenAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -842,6 +911,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
     UPGRADE_INTERFACE_VERSION(overrides?: CallOverrides): Promise<string>;
 
     burnFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+    burnFees(
+      _burnAmount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     chainId(overrides?: CallOverrides): Promise<number>;
 
@@ -897,6 +971,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     rewardToken(overrides?: CallOverrides): Promise<string>;
@@ -935,6 +1015,8 @@ export interface RewardDistributorV1LZ extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    toBurn(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -990,6 +1072,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
       burnFee?: PromiseOrValue<BigNumberish> | null
     ): BurnFeeSetEventFilter;
 
+    "Burned(uint256)"(
+      burnAmount?: PromiseOrValue<BigNumberish> | null
+    ): BurnedEventFilter;
+    Burned(burnAmount?: PromiseOrValue<BigNumberish> | null): BurnedEventFilter;
+
     "FeeReceiverSet(address)"(
       feeReceiver?: PromiseOrValue<string> | null
     ): FeeReceiverSetEventFilter;
@@ -1038,6 +1125,15 @@ export interface RewardDistributorV1LZ extends BaseContract {
       platformFee?: PromiseOrValue<BigNumberish> | null,
       burnAmount?: PromiseOrValue<BigNumberish> | null
     ): ProcessedFeesEventFilter;
+
+    "Recovered(uint256,address)"(
+      recoverAmount?: PromiseOrValue<BigNumberish> | null,
+      recipient?: PromiseOrValue<string> | null
+    ): RecoveredEventFilter;
+    Recovered(
+      recoverAmount?: PromiseOrValue<BigNumberish> | null,
+      recipient?: PromiseOrValue<string> | null
+    ): RecoveredEventFilter;
 
     "TaskCreated(uint256,uint256,address)"(
       id?: PromiseOrValue<BigNumberish> | null,
@@ -1089,6 +1185,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
     UPGRADE_INTERFACE_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
 
     burnFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+    burnFees(
+      _burnAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     chainId(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1142,6 +1243,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1182,6 +1289,8 @@ export interface RewardDistributorV1LZ extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    toBurn(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1235,6 +1344,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     burnFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    burnFees(
+      _burnAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     chainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1294,6 +1408,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1334,6 +1454,8 @@ export interface RewardDistributorV1LZ extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    toBurn(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokenAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

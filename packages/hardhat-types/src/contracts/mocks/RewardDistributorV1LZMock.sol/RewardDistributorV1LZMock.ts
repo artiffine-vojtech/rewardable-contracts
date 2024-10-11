@@ -54,6 +54,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
     "UPGRADE_INTERFACE_VERSION()": FunctionFragment;
     "addToTest()": FunctionFragment;
     "burnFee()": FunctionFragment;
+    "burnFees(uint256)": FunctionFragment;
     "chainId()": FunctionFragment;
     "createTask(uint256,address)": FunctionFragment;
     "createTaskWithPermit(uint256,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
@@ -76,6 +77,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
     "setTokenAdmin(address)": FunctionFragment;
     "taskRewards(uint256)": FunctionFragment;
     "test()": FunctionFragment;
+    "toBurn()": FunctionFragment;
     "tokenAdmin()": FunctionFragment;
     "topUpTask(uint256,uint256,address)": FunctionFragment;
     "topUpTaskWithPermit(uint256,uint256,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
@@ -90,6 +92,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
       | "UPGRADE_INTERFACE_VERSION"
       | "addToTest"
       | "burnFee"
+      | "burnFees"
       | "chainId"
       | "createTask"
       | "createTaskWithPermit"
@@ -112,6 +115,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
       | "setTokenAdmin"
       | "taskRewards"
       | "test"
+      | "toBurn"
       | "tokenAdmin"
       | "topUpTask"
       | "topUpTaskWithPermit"
@@ -127,6 +131,10 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "addToTest", values?: undefined): string;
   encodeFunctionData(functionFragment: "burnFee", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "burnFees",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "chainId", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "createTask",
@@ -227,6 +235,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "test", values?: undefined): string;
+  encodeFunctionData(functionFragment: "toBurn", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "tokenAdmin",
     values?: undefined
@@ -280,6 +289,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "addToTest", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burnFee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "burnFees", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createTask", data: BytesLike): Result;
   decodeFunctionResult(
@@ -347,6 +357,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "test", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "toBurn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokenAdmin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "topUpTask", data: BytesLike): Result;
   decodeFunctionResult(
@@ -372,6 +383,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
 
   events: {
     "BurnFeeSet(uint256)": EventFragment;
+    "Burned(uint256,uint256)": EventFragment;
     "FeeReceiverSet(address)": EventFragment;
     "Initialized(uint64)": EventFragment;
     "MaxDailyWithdrawalSet(uint256)": EventFragment;
@@ -387,6 +399,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "BurnFeeSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Burned"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeReceiverSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MaxDailyWithdrawalSet"): EventFragment;
@@ -407,6 +420,14 @@ export interface BurnFeeSetEventObject {
 export type BurnFeeSetEvent = TypedEvent<[BigNumber], BurnFeeSetEventObject>;
 
 export type BurnFeeSetEventFilter = TypedEventFilter<BurnFeeSetEvent>;
+
+export interface BurnedEventObject {
+  burnAmount: BigNumber;
+  recoverAmount: BigNumber;
+}
+export type BurnedEvent = TypedEvent<[BigNumber, BigNumber], BurnedEventObject>;
+
+export type BurnedEventFilter = TypedEventFilter<BurnedEvent>;
 
 export interface FeeReceiverSetEventObject {
   feeReceiver: string;
@@ -565,6 +586,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
     burnFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    burnFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     chainId(overrides?: CallOverrides): Promise<[number]>;
 
     createTask(
@@ -662,6 +688,8 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
     test(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    toBurn(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     tokenAdmin(overrides?: CallOverrides): Promise<[string]>;
 
     topUpTask(
@@ -715,6 +743,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
   ): Promise<ContractTransaction>;
 
   burnFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+  burnFees(
+    _recoverAmount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   chainId(overrides?: CallOverrides): Promise<number>;
 
@@ -813,6 +846,8 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
   test(overrides?: CallOverrides): Promise<BigNumber>;
 
+  toBurn(overrides?: CallOverrides): Promise<BigNumber>;
+
   tokenAdmin(overrides?: CallOverrides): Promise<string>;
 
   topUpTask(
@@ -864,6 +899,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     addToTest(overrides?: CallOverrides): Promise<void>;
 
     burnFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+    burnFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     chainId(overrides?: CallOverrides): Promise<number>;
 
@@ -960,6 +1000,8 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
     test(overrides?: CallOverrides): Promise<BigNumber>;
 
+    toBurn(overrides?: CallOverrides): Promise<BigNumber>;
+
     tokenAdmin(overrides?: CallOverrides): Promise<string>;
 
     topUpTask(
@@ -1013,6 +1055,15 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     BurnFeeSet(
       burnFee?: PromiseOrValue<BigNumberish> | null
     ): BurnFeeSetEventFilter;
+
+    "Burned(uint256,uint256)"(
+      burnAmount?: PromiseOrValue<BigNumberish> | null,
+      recoverAmount?: PromiseOrValue<BigNumberish> | null
+    ): BurnedEventFilter;
+    Burned(
+      burnAmount?: PromiseOrValue<BigNumberish> | null,
+      recoverAmount?: PromiseOrValue<BigNumberish> | null
+    ): BurnedEventFilter;
 
     "FeeReceiverSet(address)"(
       feeReceiver?: PromiseOrValue<string> | null
@@ -1118,6 +1169,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
     burnFee(overrides?: CallOverrides): Promise<BigNumber>;
 
+    burnFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     chainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     createTask(
@@ -1213,6 +1269,8 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
     test(overrides?: CallOverrides): Promise<BigNumber>;
 
+    toBurn(overrides?: CallOverrides): Promise<BigNumber>;
+
     tokenAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
     topUpTask(
@@ -1269,6 +1327,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     burnFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    burnFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     chainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1370,6 +1433,8 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     test(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    toBurn(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokenAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

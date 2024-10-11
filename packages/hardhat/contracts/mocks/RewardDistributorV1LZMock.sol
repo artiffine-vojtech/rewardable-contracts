@@ -29,10 +29,16 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
     using ECDSA for bytes32;
     using OptionsBuilder for bytes;
 
+    /// @notice LZ send param struct for cross-chain withdrawals.abi
+    /// @dev Most cases only destinationChainId is needed.
     struct LZSendParam {
+        /// @notice Destination chain ID (provided by LZ).
         uint32 destinationChainId;
+        /// @notice Additional gasLimit to send with the message.
         uint128 addGas;
+        /// @notice Additional ether value to pay for tx on destination chain.
         uint128 addEther;
+        /// @notice Top up amount for the native token on the destination chain.
         uint128 topUp;
     }
 
@@ -58,6 +64,9 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
 
     /// @notice Minimum reward token amount needed for withdrawal.
     uint public minWithdrawalAmount;
+
+    /// @notice Total amount of rewards to be burned.
+    uint public toBurn;
 
     /// @notice Total amount of claimed rewards per user.
     mapping(address => uint) public withdrawnRewards;
@@ -91,6 +100,7 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
     event TaskToppedUp(uint indexed id, uint indexed rewardAmount, address indexed sponsor);
     event ProcessedFees(uint indexed platformFee, uint indexed burnAmount);
     event WithdrawnRewards(address indexed identity, uint indexed amount);
+    event Burned(uint indexed burnAmount, uint indexed recoverAmount);
 
     /***** INITILIAZERS *****/
 
@@ -365,6 +375,10 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
         emit MaxDailyWithdrawalSet(_maxDailyWithdrawal);
     }
 
+    function addToTest() external onlyOwner {
+        test += 1;
+    }
+
     /**
      * @notice Set the minimum withdrawal amount for users.
      * @param _minWithdrawalAmount Minimum withdrawal amount.
@@ -374,8 +388,18 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
         emit MinWithdrawalAmountSet(_minWithdrawalAmount);
     }
 
-    function addToTest() external onlyOwner {
-        test += 1;
+    /**
+     * @notice Burn fees to burn and recover some of the rewards for refunds.
+     * @param _recoverAmount Amount of rewards to recover.
+     */
+    function burnFees(uint _recoverAmount) external onlyOwner {
+        require(_recoverAmount <= toBurn, 'Exceeds toBurn');
+        require(_recoverAmount <= rewardToken.balanceOf(address(this)), 'Exceeds balance');
+        uint burnAmount = toBurn - _recoverAmount;
+        toBurn = 0;
+        if (burnAmount > 0) ERC20Burnable(address(rewardToken)).burn(burnAmount);
+        if (_recoverAmount > 0) rewardToken.safeTransfer(owner(), _recoverAmount);
+        emit Burned(burnAmount, _recoverAmount);
     }
 
     /***** INTERNAL *****/
@@ -388,7 +412,7 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
         amountAfterFees = (_amount * 1e4) / (1e4 + platformFee);
         uint fee = _amount - amountAfterFees;
         uint burnAmount = (fee * burnFee) / 1e4;
-        if (burnAmount > 0) ERC20Burnable(address(rewardToken)).burn(burnAmount);
+        toBurn += burnAmount;
         uint feeToSend = fee - burnAmount;
         if (feeToSend > 0) rewardToken.safeTransfer(feeReceiver, feeToSend);
         emit ProcessedFees(feeToSend, burnAmount);

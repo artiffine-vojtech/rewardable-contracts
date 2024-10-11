@@ -16,6 +16,7 @@ import {
 } from '../../hardhat-types/src/contracts/RewardableLZ'
 import { ContractFactory } from 'ethers'
 import exp from 'constants'
+import { parse } from 'path'
 
 describe('RewardDistributorV1LZ', function () {
   async function deployContractFixture() {
@@ -294,10 +295,13 @@ describe('RewardDistributorV1LZ', function () {
         destinationChainId: baseEID,
         addGas: 0,
         addEther: 0,
-        topUp: 0
+        topUp: 0,
       }
-      const lzSendParamSameChain = await rewardDistributor.getSameChainLZSendParam()
-      expect(lzSendParamSameChain.destinationChainId).to.equal(lzSendParam.destinationChainId)
+      const lzSendParamSameChain =
+        await rewardDistributor.getSameChainLZSendParam()
+      expect(lzSendParamSameChain.destinationChainId).to.equal(
+        lzSendParam.destinationChainId
+      )
       expect(lzSendParamSameChain.addGas).to.equal(lzSendParam.addGas)
       expect(lzSendParamSameChain.addEther).to.equal(lzSendParam.addEther)
       expect(lzSendParamSameChain.topUp).to.equal(lzSendParam.topUp)
@@ -384,7 +388,7 @@ describe('RewardDistributorV1LZ', function () {
         userBalanceBefore.sub(REWARD_AMOUNT)
       )
       expect(await baseReward.balanceOf(rewardDistributor.address)).to.equal(
-        distributorBalanceBefore.add(REWARD_AMOUNT.sub(parseEther('0.05')))
+        distributorBalanceBefore.add(REWARD_AMOUNT.sub(parseEther('0.025')))
       )
       expect(
         await baseReward.balanceOf(rewardDistributor.feeReceiver())
@@ -403,9 +407,7 @@ describe('RewardDistributorV1LZ', function () {
       await rewardDistributor
         .connect(user)
         .createTask(REWARD_AMOUNT, user.address)
-      expect(await baseReward.totalSupply()).to.equal(
-        totalSupply.sub(parseEther('0.025'))
-      )
+      expect(await baseReward.totalSupply()).to.equal(totalSupply)
     })
 
     it('Should update state correctly', async () => {
@@ -557,7 +559,7 @@ describe('RewardDistributorV1LZ', function () {
         )
         expect(await baseReward.balanceOf(rewardDistributor.address)).to.equal(
           distributorBalanceBefore.add(
-            parseEther('1.05').sub(parseEther('0.05'))
+            parseEther('1.05').sub(parseEther('0.025'))
           )
         )
         expect(
@@ -592,9 +594,7 @@ describe('RewardDistributorV1LZ', function () {
             permit.s
           )
 
-        expect(await baseReward.totalSupply()).to.equal(
-          totalSupply.sub(parseEther('0.025'))
-        )
+        expect(await baseReward.totalSupply()).to.equal(totalSupply)
       })
 
       it('Should update state correctly', async () => {
@@ -762,7 +762,7 @@ describe('RewardDistributorV1LZ', function () {
         .connect(user)
         .topUpTask(parseEther('1.05'), 0, user.address)
       expect(await baseReward.balanceOf(rewardDistributor.address)).to.equal(
-        parseEther('101.0')
+        parseEther('101.0').add(parseEther('2.525'))
       )
       expect(await baseReward.balanceOf(user.address)).to.equal(
         userBalanceBefore.sub(parseEther('1.05'))
@@ -783,9 +783,7 @@ describe('RewardDistributorV1LZ', function () {
       await rewardDistributor
         .connect(user)
         .topUpTask(parseEther('1.05'), 0, user.address)
-      expect(await baseReward.totalSupply()).to.equal(
-        totalSupply.sub(parseEther('0.025'))
-      )
+      expect(await baseReward.totalSupply()).to.equal(totalSupply)
     })
 
     it('Should update state correctly', async () => {
@@ -935,7 +933,7 @@ describe('RewardDistributorV1LZ', function () {
             permit.s
           )
         expect(await baseReward.balanceOf(rewardDistributor.address)).to.equal(
-          parseEther('101')
+          parseEther('101').add(parseEther('2.525'))
         )
         expect(await baseReward.balanceOf(user.address)).to.equal(
           userBalanceBefore.sub(parseEther('1.05'))
@@ -945,7 +943,7 @@ describe('RewardDistributorV1LZ', function () {
         ).to.equal(feeReceiverBalanceBefore.add(parseEther('0.025')))
       })
 
-      it('Should burn fees correctly', async () => {
+      it('Should set toBurn fees correctly', async () => {
         const { rewardDistributor, baseReward, user } = await loadFixture(
           deployContractFixtureWithOneTask
         )
@@ -960,6 +958,8 @@ describe('RewardDistributorV1LZ', function () {
           timestamp
         )
 
+        const toBurnBefore = await rewardDistributor.toBurn()
+
         await rewardDistributor
           .connect(user)
           .topUpTaskWithPermit(
@@ -972,8 +972,9 @@ describe('RewardDistributorV1LZ', function () {
             permit.r,
             permit.s
           )
-        expect(await baseReward.totalSupply()).to.equal(
-          totalSupply.sub(parseEther('0.025'))
+        expect(await baseReward.totalSupply()).to.equal(totalSupply)
+        expect(await rewardDistributor.toBurn()).to.equal(
+          parseEther('0.025').add(toBurnBefore)
         )
       })
 
@@ -1247,12 +1248,17 @@ describe('RewardDistributorV1LZ', function () {
         destinationChainId: 897,
         addGas: 0,
         addEther: 0,
-        topUp: 0
+        topUp: 0,
       }
 
       let action = rewardDistributor
         .connect(user)
-        .withdrawRewards(user.address, parseEther('2'), signedProof, lzSendParam)
+        .withdrawRewards(
+          user.address,
+          parseEther('2'),
+          signedProof,
+          lzSendParam
+        )
       await expect(action).to.be.revertedWith('NoPeer').withArgs(897)
     })
 
@@ -1400,7 +1406,7 @@ describe('RewardDistributorV1LZ', function () {
         destinationChainId: polygonEID,
         addGas: 0,
         addEther: 0,
-        topUp: 0
+        topUp: 0,
       }
 
       const fee = await rewardDistributor.quoteSend(
@@ -1445,7 +1451,9 @@ describe('RewardDistributorV1LZ', function () {
         admin
       )
 
-      const userEtherBalanceBefore = await ethers.provider.getBalance(user.address)
+      const userEtherBalanceBefore = await ethers.provider.getBalance(
+        user.address
+      )
       const userBalanceBefore = await baseReward.balanceOf(user.address)
       const userBalanceBeforePolygon = await polygonReward.balanceOf(
         user.address
@@ -1458,7 +1466,7 @@ describe('RewardDistributorV1LZ', function () {
         destinationChainId: polygonEID,
         addGas: 0,
         addEther: 0,
-        topUp: parseEther('0.1')
+        topUp: parseEther('0.1'),
       }
 
       const fee = await rewardDistributor.quoteSend(
@@ -1467,14 +1475,13 @@ describe('RewardDistributorV1LZ', function () {
         lzSendParam
       )
 
-      await rewardDistributor
-        .withdrawRewards(
-          user.address,
-          parseEther('2'),
-          signedProof,
-          lzSendParam,
-          { value: fee }
-        )
+      await rewardDistributor.withdrawRewards(
+        user.address,
+        parseEther('2'),
+        signedProof,
+        lzSendParam,
+        { value: fee }
+      )
 
       expect(await baseReward.balanceOf(user.address)).to.be.eq(
         userBalanceBefore
@@ -1500,17 +1507,120 @@ describe('RewardDistributorV1LZ', function () {
         admin
       )
 
-      let action = rewardDistributor
-        .withdrawRewards(
-          user.address,
-          parseEther('2'),
-          signedProof,
-          await rewardDistributor.getSameChainLZSendParam()
-        )
+      let action = rewardDistributor.withdrawRewards(
+        user.address,
+        parseEther('2'),
+        signedProof,
+        await rewardDistributor.getSameChainLZSendParam()
+      )
 
       await expect(action)
         .to.emit(rewardDistributor, 'WithdrawnRewards')
         .withArgs(user.address, parseEther('2'))
+    })
+  })
+
+  describe('BurnFees', async () => {
+    it('Should revert if not called by the owner', async () => {
+      const { rewardDistributor, user } = await loadFixture(
+        deployContractFixtureWithOneTask
+      )
+      let action = rewardDistributor.connect(user).burnFees(parseEther('5'))
+      await expect(action).to.be.revertedWith('OwnableUnauthorizedAccount')
+    })
+
+    it('Should revert if amount to recover exceeds toBurn', async () => {
+      const { rewardDistributor, owner } = await loadFixture(
+        deployContractFixtureWithOneTask
+      )
+      let action = rewardDistributor.connect(owner).burnFees(parseEther('5'))
+      await expect(action).to.be.revertedWith('Exceeds toBurn')
+    })
+
+    it('Should revert if amount to recover exceeds balance', async () => {
+      const { rewardDistributor, owner, user, admin, baseReward } =
+        await loadFixture(deployContractFixtureWithOneTask)
+
+      await rewardDistributor.setMaxDailyWithdrawal(1e4)
+
+      const balance = await baseReward.balanceOf(rewardDistributor.address)
+      const signedProof = await getUserVerificationData(
+        user.address,
+        balance,
+        admin
+      )
+
+      await rewardDistributor
+        .connect(user)
+        .withdrawRewards(
+          user.address,
+          balance,
+          signedProof,
+          await rewardDistributor.getSameChainLZSendParam()
+        )
+
+      let action = rewardDistributor.connect(owner).burnFees(parseEther('1'))
+      await expect(action).to.be.revertedWith('Exceeds balance')
+    })
+
+    it('Should burn correct amounts', async () => {
+      const { rewardDistributor, owner, baseReward } = await loadFixture(
+        deployContractFixtureWithOneTask
+      )
+      const totalSupply = await baseReward.totalSupply()
+      const toBurnBefore = await rewardDistributor.toBurn()
+      const balanceBefore = await baseReward.balanceOf(
+        rewardDistributor.address
+      )
+      const ownerBalanceBefore = await baseReward.balanceOf(owner.address)
+      const amountToBurn = parseEther('1')
+      const action = await rewardDistributor
+        .connect(owner)
+        .burnFees(amountToBurn)
+      await expect(action)
+        .to.emit(rewardDistributor, 'Burned')
+        .withArgs(amountToBurn)
+      expect(await rewardDistributor.toBurn()).to.be.eq(
+        toBurnBefore.sub(amountToBurn)
+      )
+      expect(await baseReward.balanceOf(rewardDistributor.address)).to.be.eq(
+        balanceBefore.sub(amountToBurn)
+      )
+      expect(await baseReward.balanceOf(owner.address)).to.be.eq(
+        ownerBalanceBefore
+      )
+      expect(await baseReward.totalSupply()).to.be.eq(
+        totalSupply.sub(amountToBurn)
+      )
+    })
+
+    it('Should recover correct amounts', async () => {
+      const { rewardDistributor, owner, baseReward } = await loadFixture(
+        deployContractFixtureWithOneTask
+      )
+      const totalSupply = await baseReward.totalSupply()
+      const toBurnBefore = await rewardDistributor.toBurn()
+      const balanceBefore = await baseReward.balanceOf(
+        rewardDistributor.address
+      )
+      const ownerBalanceBefore = await baseReward.balanceOf(owner.address)
+      const amountToBurn = parseEther('1')
+      const action = await rewardDistributor
+        .connect(owner)
+        .recoverFees(amountToBurn, owner.address)
+      await expect(action)
+        .to.emit(rewardDistributor, 'Recovered')
+        .withArgs(amountToBurn, owner.address)
+      expect(await rewardDistributor.toBurn()).to.be.eq(
+        toBurnBefore.sub(amountToBurn)
+      )
+      expect(await baseReward.balanceOf(rewardDistributor.address)).to.be.eq(
+        balanceBefore.sub(amountToBurn)
+      )
+      expect(await baseReward.balanceOf(owner.address)).to.be.eq(
+        ownerBalanceBefore.add(amountToBurn)
+      )
+      expect(await baseReward.totalSupply()).to.be.eq(totalSupply)
     })
   })
 

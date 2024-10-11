@@ -33,6 +33,7 @@ export interface RewardDistributorMockInterface extends utils.Interface {
     "UPGRADE_INTERFACE_VERSION()": FunctionFragment;
     "addToTest()": FunctionFragment;
     "burnFee()": FunctionFragment;
+    "burnFees(uint256)": FunctionFragment;
     "createTask(uint256,address)": FunctionFragment;
     "createTaskWithPermit(uint256,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "feeReceiver()": FunctionFragment;
@@ -42,15 +43,18 @@ export interface RewardDistributorMockInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "platformFee()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
+    "recoverFees(uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "rewardToken()": FunctionFragment;
     "setBurnFee(uint256)": FunctionFragment;
     "setFeeReceiver(address)": FunctionFragment;
     "setMaxDailyWithdrawal(uint256)": FunctionFragment;
+    "setMinWithdrawalAmount(uint256)": FunctionFragment;
     "setPlatformFee(uint256)": FunctionFragment;
     "setTokenAdmin(address)": FunctionFragment;
     "taskRewards(uint256)": FunctionFragment;
     "test()": FunctionFragment;
+    "toBurn()": FunctionFragment;
     "tokenAdmin()": FunctionFragment;
     "topUpTask(uint256,uint256,address)": FunctionFragment;
     "topUpTaskWithPermit(uint256,uint256,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
@@ -65,6 +69,7 @@ export interface RewardDistributorMockInterface extends utils.Interface {
       | "UPGRADE_INTERFACE_VERSION"
       | "addToTest"
       | "burnFee"
+      | "burnFees"
       | "createTask"
       | "createTaskWithPermit"
       | "feeReceiver"
@@ -74,15 +79,18 @@ export interface RewardDistributorMockInterface extends utils.Interface {
       | "owner"
       | "platformFee"
       | "proxiableUUID"
+      | "recoverFees"
       | "renounceOwnership"
       | "rewardToken"
       | "setBurnFee"
       | "setFeeReceiver"
       | "setMaxDailyWithdrawal"
+      | "setMinWithdrawalAmount"
       | "setPlatformFee"
       | "setTokenAdmin"
       | "taskRewards"
       | "test"
+      | "toBurn"
       | "tokenAdmin"
       | "topUpTask"
       | "topUpTaskWithPermit"
@@ -98,6 +106,10 @@ export interface RewardDistributorMockInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "addToTest", values?: undefined): string;
   encodeFunctionData(functionFragment: "burnFee", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "burnFees",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "createTask",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
@@ -149,6 +161,10 @@ export interface RewardDistributorMockInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "recoverFees",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
@@ -169,6 +185,10 @@ export interface RewardDistributorMockInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setMinWithdrawalAmount",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setPlatformFee",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -181,6 +201,7 @@ export interface RewardDistributorMockInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "test", values?: undefined): string;
+  encodeFunctionData(functionFragment: "toBurn", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "tokenAdmin",
     values?: undefined
@@ -233,6 +254,7 @@ export interface RewardDistributorMockInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "addToTest", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burnFee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "burnFees", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createTask", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createTaskWithPermit",
@@ -261,6 +283,10 @@ export interface RewardDistributorMockInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "recoverFees",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
@@ -278,6 +304,10 @@ export interface RewardDistributorMockInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setMinWithdrawalAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setPlatformFee",
     data: BytesLike
   ): Result;
@@ -290,6 +320,7 @@ export interface RewardDistributorMockInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "test", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "toBurn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokenAdmin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "topUpTask", data: BytesLike): Result;
   decodeFunctionResult(
@@ -315,12 +346,15 @@ export interface RewardDistributorMockInterface extends utils.Interface {
 
   events: {
     "BurnFeeSet(uint256)": EventFragment;
+    "Burned(uint256)": EventFragment;
     "FeeReceiverSet(address)": EventFragment;
     "Initialized(uint64)": EventFragment;
     "MaxDailyWithdrawalSet(uint256)": EventFragment;
+    "MinWithdrawalAmountSet(uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "PlatformFeeSet(uint256)": EventFragment;
     "ProcessedFees(uint256,uint256)": EventFragment;
+    "Recovered(uint256)": EventFragment;
     "TaskCreated(uint256,uint256,address)": EventFragment;
     "TaskToppedUp(uint256,uint256,address)": EventFragment;
     "TokenAdminSet(address)": EventFragment;
@@ -329,12 +363,15 @@ export interface RewardDistributorMockInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "BurnFeeSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Burned"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeReceiverSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MaxDailyWithdrawalSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MinWithdrawalAmountSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PlatformFeeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProcessedFees"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Recovered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TaskCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TaskToppedUp"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAdminSet"): EventFragment;
@@ -348,6 +385,13 @@ export interface BurnFeeSetEventObject {
 export type BurnFeeSetEvent = TypedEvent<[BigNumber], BurnFeeSetEventObject>;
 
 export type BurnFeeSetEventFilter = TypedEventFilter<BurnFeeSetEvent>;
+
+export interface BurnedEventObject {
+  burnAmount: BigNumber;
+}
+export type BurnedEvent = TypedEvent<[BigNumber], BurnedEventObject>;
+
+export type BurnedEventFilter = TypedEventFilter<BurnedEvent>;
 
 export interface FeeReceiverSetEventObject {
   feeReceiver: string;
@@ -376,6 +420,17 @@ export type MaxDailyWithdrawalSetEvent = TypedEvent<
 
 export type MaxDailyWithdrawalSetEventFilter =
   TypedEventFilter<MaxDailyWithdrawalSetEvent>;
+
+export interface MinWithdrawalAmountSetEventObject {
+  minWithdrawalAmount: BigNumber;
+}
+export type MinWithdrawalAmountSetEvent = TypedEvent<
+  [BigNumber],
+  MinWithdrawalAmountSetEventObject
+>;
+
+export type MinWithdrawalAmountSetEventFilter =
+  TypedEventFilter<MinWithdrawalAmountSetEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -409,6 +464,13 @@ export type ProcessedFeesEvent = TypedEvent<
 >;
 
 export type ProcessedFeesEventFilter = TypedEventFilter<ProcessedFeesEvent>;
+
+export interface RecoveredEventObject {
+  recoverAmount: BigNumber;
+}
+export type RecoveredEvent = TypedEvent<[BigNumber], RecoveredEventObject>;
+
+export type RecoveredEventFilter = TypedEventFilter<RecoveredEvent>;
 
 export interface TaskCreatedEventObject {
   id: BigNumber;
@@ -495,6 +557,11 @@ export interface RewardDistributorMock extends BaseContract {
 
     burnFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    burnFees(
+      _burnAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     createTask(
       _rewardAmount: PromiseOrValue<BigNumberish>,
       _sponsor: PromiseOrValue<string>,
@@ -536,6 +603,11 @@ export interface RewardDistributorMock extends BaseContract {
 
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -557,6 +629,11 @@ export interface RewardDistributorMock extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setMinWithdrawalAmount(
+      _minWithdrawalAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -573,6 +650,8 @@ export interface RewardDistributorMock extends BaseContract {
     ): Promise<[BigNumber]>;
 
     test(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    toBurn(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     tokenAdmin(overrides?: CallOverrides): Promise<[string]>;
 
@@ -627,6 +706,11 @@ export interface RewardDistributorMock extends BaseContract {
 
   burnFee(overrides?: CallOverrides): Promise<BigNumber>;
 
+  burnFees(
+    _burnAmount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   createTask(
     _rewardAmount: PromiseOrValue<BigNumberish>,
     _sponsor: PromiseOrValue<string>,
@@ -668,6 +752,11 @@ export interface RewardDistributorMock extends BaseContract {
 
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
+  recoverFees(
+    _recoverAmount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -689,6 +778,11 @@ export interface RewardDistributorMock extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setMinWithdrawalAmount(
+    _minWithdrawalAmount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setPlatformFee(
     _platformFee: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -705,6 +799,8 @@ export interface RewardDistributorMock extends BaseContract {
   ): Promise<BigNumber>;
 
   test(overrides?: CallOverrides): Promise<BigNumber>;
+
+  toBurn(overrides?: CallOverrides): Promise<BigNumber>;
 
   tokenAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -757,6 +853,11 @@ export interface RewardDistributorMock extends BaseContract {
 
     burnFee(overrides?: CallOverrides): Promise<BigNumber>;
 
+    burnFees(
+      _burnAmount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     createTask(
       _rewardAmount: PromiseOrValue<BigNumberish>,
       _sponsor: PromiseOrValue<string>,
@@ -798,6 +899,11 @@ export interface RewardDistributorMock extends BaseContract {
 
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     rewardToken(overrides?: CallOverrides): Promise<string>;
@@ -817,6 +923,11 @@ export interface RewardDistributorMock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setMinWithdrawalAmount(
+      _minWithdrawalAmount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -833,6 +944,8 @@ export interface RewardDistributorMock extends BaseContract {
     ): Promise<BigNumber>;
 
     test(overrides?: CallOverrides): Promise<BigNumber>;
+
+    toBurn(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -887,6 +1000,11 @@ export interface RewardDistributorMock extends BaseContract {
       burnFee?: PromiseOrValue<BigNumberish> | null
     ): BurnFeeSetEventFilter;
 
+    "Burned(uint256)"(
+      burnAmount?: PromiseOrValue<BigNumberish> | null
+    ): BurnedEventFilter;
+    Burned(burnAmount?: PromiseOrValue<BigNumberish> | null): BurnedEventFilter;
+
     "FeeReceiverSet(address)"(
       feeReceiver?: PromiseOrValue<string> | null
     ): FeeReceiverSetEventFilter;
@@ -903,6 +1021,13 @@ export interface RewardDistributorMock extends BaseContract {
     MaxDailyWithdrawalSet(
       maxDailyWithdrawal?: PromiseOrValue<BigNumberish> | null
     ): MaxDailyWithdrawalSetEventFilter;
+
+    "MinWithdrawalAmountSet(uint256)"(
+      minWithdrawalAmount?: PromiseOrValue<BigNumberish> | null
+    ): MinWithdrawalAmountSetEventFilter;
+    MinWithdrawalAmountSet(
+      minWithdrawalAmount?: PromiseOrValue<BigNumberish> | null
+    ): MinWithdrawalAmountSetEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
@@ -928,6 +1053,13 @@ export interface RewardDistributorMock extends BaseContract {
       platformFee?: PromiseOrValue<BigNumberish> | null,
       burnAmount?: PromiseOrValue<BigNumberish> | null
     ): ProcessedFeesEventFilter;
+
+    "Recovered(uint256)"(
+      recoverAmount?: PromiseOrValue<BigNumberish> | null
+    ): RecoveredEventFilter;
+    Recovered(
+      recoverAmount?: PromiseOrValue<BigNumberish> | null
+    ): RecoveredEventFilter;
 
     "TaskCreated(uint256,uint256,address)"(
       id?: PromiseOrValue<BigNumberish> | null,
@@ -984,6 +1116,11 @@ export interface RewardDistributorMock extends BaseContract {
 
     burnFee(overrides?: CallOverrides): Promise<BigNumber>;
 
+    burnFees(
+      _burnAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     createTask(
       _rewardAmount: PromiseOrValue<BigNumberish>,
       _sponsor: PromiseOrValue<string>,
@@ -1025,6 +1162,11 @@ export interface RewardDistributorMock extends BaseContract {
 
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1046,6 +1188,11 @@ export interface RewardDistributorMock extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setMinWithdrawalAmount(
+      _minWithdrawalAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1062,6 +1209,8 @@ export interface RewardDistributorMock extends BaseContract {
     ): Promise<BigNumber>;
 
     test(overrides?: CallOverrides): Promise<BigNumber>;
+
+    toBurn(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1119,6 +1268,11 @@ export interface RewardDistributorMock extends BaseContract {
 
     burnFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    burnFees(
+      _burnAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     createTask(
       _rewardAmount: PromiseOrValue<BigNumberish>,
       _sponsor: PromiseOrValue<string>,
@@ -1164,6 +1318,11 @@ export interface RewardDistributorMock extends BaseContract {
 
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1185,6 +1344,11 @@ export interface RewardDistributorMock extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setMinWithdrawalAmount(
+      _minWithdrawalAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1201,6 +1365,8 @@ export interface RewardDistributorMock extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     test(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    toBurn(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokenAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

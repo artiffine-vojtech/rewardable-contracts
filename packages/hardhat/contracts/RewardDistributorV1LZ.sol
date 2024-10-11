@@ -65,6 +65,9 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Minimum reward token amount needed for withdrawal.
     uint public minWithdrawalAmount;
 
+    /// @notice Total amount of rewards to be burned.
+    uint public toBurn;
+
     /// @notice Total amount of claimed rewards per user.
     mapping(address => uint) public withdrawnRewards;
 
@@ -94,6 +97,8 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
     event TaskToppedUp(uint indexed id, uint indexed rewardAmount, address indexed sponsor);
     event ProcessedFees(uint indexed platformFee, uint indexed burnAmount);
     event WithdrawnRewards(address indexed identity, uint indexed amount);
+    event Burned(uint indexed burnAmount);
+    event Recovered(uint indexed recoverAmount, address indexed recipient);
 
     /***** INITILIAZERS *****/
 
@@ -375,6 +380,31 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
         emit MinWithdrawalAmountSet(_minWithdrawalAmount);
     }
 
+    /**
+     * @notice Burns a specified amount of tokens, not exceeding the total amount to burn.
+     * @param _burnAmount Amount of tokens to burn.
+     */
+    function burnFees(uint _burnAmount) external onlyOwner {
+        require(_burnAmount <= toBurn, 'Exceeds toBurn');
+        require(_burnAmount <= rewardToken.balanceOf(address(this)), 'Exceeds balance');
+        toBurn -= _burnAmount;
+        ERC20Burnable(address(rewardToken)).burn(_burnAmount);
+        emit Burned(_burnAmount);
+    }
+
+    /**
+     * @notice Recovers a specified amount of tokens that were meant to be burned.
+     * @param _recoverAmount Amount of tokens to recover.
+     * @param _recipient Address to send the recovered tokens to.
+     */
+    function recoverFees(uint _recoverAmount, address _recipient) external onlyOwner {
+        require(_recoverAmount <= toBurn, 'Exceeds toBurn');
+        require(_recoverAmount <= rewardToken.balanceOf(address(this)), 'Exceeds balance');
+        toBurn -= _recoverAmount;
+        rewardToken.safeTransfer(_recipient, _recoverAmount);
+        emit Recovered(_recoverAmount, _recipient);
+    }
+
     /***** INTERNAL *****/
 
     /**
@@ -385,7 +415,7 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
         amountAfterFees = (_amount * 1e4) / (1e4 + platformFee);
         uint fee = _amount - amountAfterFees;
         uint burnAmount = (fee * burnFee) / 1e4;
-        if (burnAmount > 0) ERC20Burnable(address(rewardToken)).burn(burnAmount);
+        toBurn += burnAmount;
         uint feeToSend = fee - burnAmount;
         if (feeToSend > 0) rewardToken.safeTransfer(feeReceiver, feeToSend);
         emit ProcessedFees(feeToSend, burnAmount);
