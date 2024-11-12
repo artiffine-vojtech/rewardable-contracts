@@ -68,7 +68,7 @@ contract TokenEmissionsController is ITokenEmissionsController, Adminable {
     /**
      * @inheritdoc ITokenEmissionsController
      */
-    function startEmissions(EmissionPoint[] memory _emissions) external {
+    function startEmissions(EmissionPoint[] memory _emissions) external onlyOwner {
         require(emissions.length == 0, 'Emissions already started');
         require(_emissions.length > 0, 'No emissions');
         uint256 length = _emissions.length;
@@ -225,9 +225,10 @@ contract TokenEmissionsController is ITokenEmissionsController, Adminable {
     }
 
     /**
-     * Add reward tokens for distribution over next 7 days.
+     * Add reward tokens for specified distribution.
      * @param _rewardTokens Array of addresses of the reward tokens.
      * @param _amounts Array of amounts of rewards tokens.
+     * @param _rewardsDuration Duration of the rewards distribution.
      */
     function notifyReward(address[] calldata _rewardTokens, uint[] calldata _amounts, uint _rewardsDuration) external onlyAdmin {
         require(_rewardsDuration > 0, 'Duration is zero');
@@ -297,7 +298,7 @@ contract TokenEmissionsController is ITokenEmissionsController, Adminable {
 
     function _addReward(address _rewardToken) internal {
         require(_rewardToken != address(stakingToken), 'Staking token is not reward');
-        require(rewardData[_rewardToken].lastUpdateTime == 0);
+        require(rewardData[_rewardToken].lastUpdateTime == 0, 'Reward token is already added');
         rewardTokens.push(_rewardToken);
         rewardData[_rewardToken].lastUpdateTime = block.timestamp;
         rewardData[_rewardToken].periodFinish = block.timestamp;

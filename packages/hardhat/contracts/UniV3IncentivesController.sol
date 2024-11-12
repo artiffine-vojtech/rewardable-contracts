@@ -125,8 +125,8 @@ contract UniV3IncentivesController is ERC721Holder, Adminable {
                 ,
 
             ) = INonfungiblePositionManager(address(nft)).positions(nftId);
-            require(posConfig.tickLower <= _tickLower, 'Invalid lower tick');
-            require(posConfig.tickUpper >= _tickUpper, 'Invalid upper tick');
+            require(posConfig.tickLower == _tickLower, 'Invalid lower tick');
+            require(posConfig.tickUpper == _tickUpper, 'Invalid upper tick');
             require(posConfig.token0 == _token0, 'Invalid token0');
             require(posConfig.token1 == _token1, 'Invalid token1');
             require(liquidity > 0, 'Invalid liquidity');
@@ -216,9 +216,10 @@ contract UniV3IncentivesController is ERC721Holder, Adminable {
     }
 
     /**
-     * Add reward tokens for distribution over next 7 days.
+     * Add reward tokens for specified duration.
      * @param _rewardTokens Array of addresses of the reward tokens.
      * @param _amounts Array of amounts of rewards tokens.
+     * @param _rewardsDuration Duration of rewards distribution.
      */
     function notifyReward(address[] calldata _rewardTokens, uint[] calldata _amounts, uint _rewardsDuration) external onlyAdmin {
         _updateReward(address(this), _rewardTokens);
@@ -275,7 +276,7 @@ contract UniV3IncentivesController is ERC721Holder, Adminable {
     }
 
     function _addReward(address _rewardToken) internal {
-        require(rewardData[_rewardToken].lastUpdateTime == 0);
+        require(rewardData[_rewardToken].lastUpdateTime == 0, 'Reward token is already added');
         rewardTokens.push(_rewardToken);
         rewardData[_rewardToken].lastUpdateTime = block.timestamp;
         rewardData[_rewardToken].periodFinish = block.timestamp;

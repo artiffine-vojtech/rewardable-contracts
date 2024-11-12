@@ -60,6 +60,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     "feeReceiver()": FunctionFragment;
     "getSameChainLZSendParam()": FunctionFragment;
     "initialize(address,address,address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "isSponsorAdmin(address)": FunctionFragment;
     "maxDailyWithdrawal()": FunctionFragment;
     "minWithdrawalAmount()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -74,6 +75,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     "setMaxDailyWithdrawal(uint256)": FunctionFragment;
     "setMinWithdrawalAmount(uint256)": FunctionFragment;
     "setPlatformFee(uint256)": FunctionFragment;
+    "setSponsorAdmin(address,bool)": FunctionFragment;
     "setTokenAdmin(address)": FunctionFragment;
     "taskRewards(uint256)": FunctionFragment;
     "toBurn()": FunctionFragment;
@@ -97,6 +99,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
       | "feeReceiver"
       | "getSameChainLZSendParam"
       | "initialize"
+      | "isSponsorAdmin"
       | "maxDailyWithdrawal"
       | "minWithdrawalAmount"
       | "owner"
@@ -111,6 +114,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
       | "setMaxDailyWithdrawal"
       | "setMinWithdrawalAmount"
       | "setPlatformFee"
+      | "setSponsorAdmin"
       | "setTokenAdmin"
       | "taskRewards"
       | "toBurn"
@@ -171,6 +175,10 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "isSponsorAdmin",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "maxDailyWithdrawal",
     values?: undefined
   ): string;
@@ -226,6 +234,10 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setPlatformFee",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSponsorAdmin",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setTokenAdmin",
@@ -305,6 +317,10 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "isSponsorAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "maxDailyWithdrawal",
     data: BytesLike
   ): Result;
@@ -352,6 +368,10 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setSponsorAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setTokenAdmin",
     data: BytesLike
   ): Result;
@@ -394,6 +414,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
     "PlatformFeeSet(uint256)": EventFragment;
     "ProcessedFees(uint256,uint256)": EventFragment;
     "Recovered(uint256,address)": EventFragment;
+    "SponsorAdminSet(address,bool)": EventFragment;
     "TaskCreated(uint256,uint256,address)": EventFragment;
     "TaskToppedUp(uint256,uint256,address)": EventFragment;
     "TokenAdminSet(address)": EventFragment;
@@ -411,6 +432,7 @@ export interface RewardDistributorV1LZInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "PlatformFeeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProcessedFees"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Recovered"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SponsorAdminSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TaskCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TaskToppedUp"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAdminSet"): EventFragment;
@@ -514,6 +536,17 @@ export type RecoveredEvent = TypedEvent<
 >;
 
 export type RecoveredEventFilter = TypedEventFilter<RecoveredEvent>;
+
+export interface SponsorAdminSetEventObject {
+  sponsorAdmin: string;
+  isAdmin: boolean;
+}
+export type SponsorAdminSetEvent = TypedEvent<
+  [string, boolean],
+  SponsorAdminSetEventObject
+>;
+
+export type SponsorAdminSetEventFilter = TypedEventFilter<SponsorAdminSetEvent>;
 
 export interface TaskCreatedEventObject {
   id: BigNumber;
@@ -638,6 +671,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    isSponsorAdmin(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     maxDailyWithdrawal(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     minWithdrawalAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -689,6 +727,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
 
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setSponsorAdmin(
+      _sponsorAdmin: PromiseOrValue<string>,
+      _isAdmin: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -796,6 +840,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  isSponsorAdmin(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   maxDailyWithdrawal(overrides?: CallOverrides): Promise<BigNumber>;
 
   minWithdrawalAmount(overrides?: CallOverrides): Promise<BigNumber>;
@@ -847,6 +896,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
 
   setPlatformFee(
     _platformFee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setSponsorAdmin(
+    _sponsorAdmin: PromiseOrValue<string>,
+    _isAdmin: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -954,6 +1009,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    isSponsorAdmin(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     maxDailyWithdrawal(overrides?: CallOverrides): Promise<BigNumber>;
 
     minWithdrawalAmount(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1003,6 +1063,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
 
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setSponsorAdmin(
+      _sponsorAdmin: PromiseOrValue<string>,
+      _isAdmin: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1135,6 +1201,15 @@ export interface RewardDistributorV1LZ extends BaseContract {
       recipient?: PromiseOrValue<string> | null
     ): RecoveredEventFilter;
 
+    "SponsorAdminSet(address,bool)"(
+      sponsorAdmin?: PromiseOrValue<string> | null,
+      isAdmin?: PromiseOrValue<boolean> | null
+    ): SponsorAdminSetEventFilter;
+    SponsorAdminSet(
+      sponsorAdmin?: PromiseOrValue<string> | null,
+      isAdmin?: PromiseOrValue<boolean> | null
+    ): SponsorAdminSetEventFilter;
+
     "TaskCreated(uint256,uint256,address)"(
       id?: PromiseOrValue<BigNumberish> | null,
       rewardAmount?: PromiseOrValue<BigNumberish> | null,
@@ -1226,6 +1301,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    isSponsorAdmin(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     maxDailyWithdrawal(overrides?: CallOverrides): Promise<BigNumber>;
 
     minWithdrawalAmount(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1277,6 +1357,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
 
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setSponsorAdmin(
+      _sponsorAdmin: PromiseOrValue<string>,
+      _isAdmin: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1387,6 +1473,11 @@ export interface RewardDistributorV1LZ extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    isSponsorAdmin(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     maxDailyWithdrawal(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1442,6 +1533,12 @@ export interface RewardDistributorV1LZ extends BaseContract {
 
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSponsorAdmin(
+      _sponsorAdmin: PromiseOrValue<string>,
+      _isAdmin: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

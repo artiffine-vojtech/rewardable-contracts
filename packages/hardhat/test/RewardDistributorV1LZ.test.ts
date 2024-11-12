@@ -366,6 +366,42 @@ describe('RewardDistributorV1LZ', function () {
       await expect(action).to.be.revertedWith('ERC20InsufficientAllowance')
     })
 
+    it('Should revert if not sponsor admin tries to use users allowance', async () => {
+      const { rewardDistributor, baseReward, user, user2, user3 } =
+        await loadFixture(deployContractFixture)
+      const userBalanceBefore = await baseReward.balanceOf(user.address)
+      const distributorBalanceBefore = await baseReward.balanceOf(
+        rewardDistributor.address
+      )
+      const feeReceiverBalanceBefore = await baseReward.balanceOf(
+        rewardDistributor.feeReceiver()
+      )
+      const REWARD_AMOUNT = parseEther('1.05')
+      await baseReward
+        .connect(user)
+        .approve(rewardDistributor.address, REWARD_AMOUNT)
+
+      const action = rewardDistributor
+        .connect(user2)
+        .createTask(REWARD_AMOUNT, user.address)
+      await expect(action).to.be.revertedWith('Not authorized')
+
+      await rewardDistributor.setSponsorAdmin(user3.address, true)
+      await rewardDistributor
+        .connect(user3)
+        .createTask(REWARD_AMOUNT, user.address)
+
+      expect(await baseReward.balanceOf(user.address)).to.equal(
+        userBalanceBefore.sub(REWARD_AMOUNT)
+      )
+      expect(await baseReward.balanceOf(rewardDistributor.address)).to.equal(
+        distributorBalanceBefore.add(REWARD_AMOUNT.sub(parseEther('0.025')))
+      )
+      expect(
+        await baseReward.balanceOf(rewardDistributor.feeReceiver())
+      ).to.equal(feeReceiverBalanceBefore.add(parseEther('0.025')))
+    })
+
     it('Should transfer tokens correctly', async () => {
       const { rewardDistributor, baseReward, user } = await loadFixture(
         deployContractFixture
@@ -457,6 +493,7 @@ describe('RewardDistributorV1LZ', function () {
       await baseReward
         .connect(user3)
         .approve(rewardDistributor.address, REWARD_AMOUNT_2)
+      await rewardDistributor.setSponsorAdmin(user2.address, true)
       const action2 = rewardDistributor
         .connect(user2)
         .createTask(REWARD_AMOUNT_2, user3.address)
@@ -518,6 +555,66 @@ describe('RewardDistributorV1LZ', function () {
             permit.s
           )
         await expect(action).to.be.revertedWith('ERC20InsufficientAllowance')
+      })
+
+      it('Should revert if not sponsor admin tries to use users allowance', async () => {
+        const { rewardDistributor, baseReward, user, user2, user3 } =
+          await loadFixture(deployContractFixture)
+        const userBalanceBefore = await baseReward.balanceOf(user.address)
+        const distributorBalanceBefore = await baseReward.balanceOf(
+          rewardDistributor.address
+        )
+        const feeReceiverBalanceBefore = await baseReward.balanceOf(
+          rewardDistributor.feeReceiver()
+        )
+
+        var timestamp =
+          (await ethers.provider.getBlock('latest')).timestamp + 86400
+        let permit = await signPermit(
+          baseReward,
+          user,
+          rewardDistributor.address,
+          parseEther('1.05'),
+          timestamp
+        )
+
+        const action = rewardDistributor
+          .connect(user2)
+          .createTaskWithPermit(
+            parseEther('1.05'),
+            user.address,
+            permit.value,
+            permit.deadline,
+            permit.v,
+            permit.r,
+            permit.s
+          )
+        await expect(action).to.be.revertedWith('Not authorized')
+
+        await rewardDistributor.setSponsorAdmin(user3.address, true)
+        await rewardDistributor
+          .connect(user3)
+          .createTaskWithPermit(
+            parseEther('1.05'),
+            user.address,
+            permit.value,
+            permit.deadline,
+            permit.v,
+            permit.r,
+            permit.s
+          )
+
+        expect(await baseReward.balanceOf(user.address)).to.equal(
+          userBalanceBefore.sub(parseEther('1.05'))
+        )
+        expect(await baseReward.balanceOf(rewardDistributor.address)).to.equal(
+          distributorBalanceBefore.add(
+            parseEther('1.05').sub(parseEther('0.025'))
+          )
+        )
+        expect(
+          await baseReward.balanceOf(rewardDistributor.feeReceiver())
+        ).to.equal(feeReceiverBalanceBefore.add(parseEther('0.025')))
       })
 
       it('Should transfer tokens correctly', async () => {
@@ -699,6 +796,7 @@ describe('RewardDistributorV1LZ', function () {
           timestamp
         )
 
+        await rewardDistributor.setSponsorAdmin(user2.address, true)
         const action2 = rewardDistributor
           .connect(user2)
           .createTaskWithPermit(
@@ -745,6 +843,38 @@ describe('RewardDistributorV1LZ', function () {
         .connect(user)
         .topUpTask(parseEther('1'), 0, user.address)
       await expect(action).to.be.revertedWith('ERC20InsufficientAllowance')
+    })
+
+    it('Should revert if not sponsor admin tries to use users allowance', async () => {
+      const { rewardDistributor, baseReward, user, user2, user3 } =
+        await loadFixture(deployContractFixtureWithOneTask)
+      const userBalanceBefore = await baseReward.balanceOf(user.address)
+      const feeReceiverBalanceBefore = await baseReward.balanceOf(
+        rewardDistributor.feeReceiver()
+      )
+      await baseReward
+        .connect(user)
+        .approve(rewardDistributor.address, parseEther('1.05'))
+      const action = rewardDistributor
+        .connect(user2)
+        .topUpTask(parseEther('1.05'), 0, user.address)
+
+      await expect(action).to.be.revertedWith('Not authorized')
+
+      await rewardDistributor.setSponsorAdmin(user3.address, true)
+      await rewardDistributor
+        .connect(user3)
+        .topUpTask(parseEther('1.05'), 0, user.address)
+
+      expect(await baseReward.balanceOf(rewardDistributor.address)).to.equal(
+        parseEther('101.0').add(parseEther('2.525'))
+      )
+      expect(await baseReward.balanceOf(user.address)).to.equal(
+        userBalanceBefore.sub(parseEther('1.05'))
+      )
+      expect(
+        await baseReward.balanceOf(rewardDistributor.feeReceiver())
+      ).to.equal(feeReceiverBalanceBefore.add(parseEther('0.025')))
     })
 
     it('Should transfer tokens correctly', async () => {
@@ -900,6 +1030,62 @@ describe('RewardDistributorV1LZ', function () {
             permit.s
           )
         await expect(action).to.be.revertedWith('ERC20InsufficientAllowance')
+      })
+
+      it('Should revert if not sponsor admin tries to use users allowance', async () => {
+        const { rewardDistributor, baseReward, user, user2, user3 } =
+          await loadFixture(deployContractFixtureWithOneTask)
+        const userBalanceBefore = await baseReward.balanceOf(user.address)
+        const feeReceiverBalanceBefore = await baseReward.balanceOf(
+          rewardDistributor.feeReceiver()
+        )
+        var timestamp =
+          (await ethers.provider.getBlock('latest')).timestamp + 86400
+        let permit = await signPermit(
+          baseReward,
+          user,
+          rewardDistributor.address,
+          parseEther('1.05'),
+          timestamp
+        )
+
+        const action = rewardDistributor
+          .connect(user2)
+          .topUpTaskWithPermit(
+            parseEther('1.05'),
+            0,
+            user.address,
+            permit.value,
+            permit.deadline,
+            permit.v,
+            permit.r,
+            permit.s
+          )
+        await expect(action).to.be.revertedWith('Not authorized')
+
+        await rewardDistributor.setSponsorAdmin(user3.address, true)
+        await rewardDistributor
+          .connect(user3)
+          .topUpTaskWithPermit(
+            parseEther('1.05'),
+            0,
+            user.address,
+            permit.value,
+            permit.deadline,
+            permit.v,
+            permit.r,
+            permit.s
+          )
+
+        expect(await baseReward.balanceOf(rewardDistributor.address)).to.equal(
+          parseEther('101').add(parseEther('2.525'))
+        )
+        expect(await baseReward.balanceOf(user.address)).to.equal(
+          userBalanceBefore.sub(parseEther('1.05'))
+        )
+        expect(
+          await baseReward.balanceOf(rewardDistributor.feeReceiver())
+        ).to.equal(feeReceiverBalanceBefore.add(parseEther('0.025')))
       })
 
       it('Should transfer tokens correctly', async () => {

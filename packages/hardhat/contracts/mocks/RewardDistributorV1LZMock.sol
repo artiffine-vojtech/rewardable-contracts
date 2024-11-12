@@ -47,7 +47,7 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Address of the reward token.
     IERC20 public rewardToken;
 
-    /// @notice Address that signes data for withdrawals;
+    /// @notice Address that signs data for withdrawals;
     address public tokenAdmin;
 
     /// @notice Address that receives fees after token burn.
@@ -71,6 +71,9 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Total amount of claimed rewards per user.
     mapping(address => uint) public withdrawnRewards;
 
+    /// @notice Addresses that can use other's rewards.
+    mapping(address => bool) public isSponsorAdmin;
+
     /// @notice Total amount of deposited rewards for the task.
     uint[] public taskRewards;
 
@@ -91,6 +94,7 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
     /***** EVENTS *****/
 
     event TokenAdminSet(address indexed tokenAdmin);
+    event SponsorAdminSet(address indexed sponsorAdmin, bool indexed isAdmin);
     event FeeReceiverSet(address indexed feeReceiver);
     event BurnFeeSet(uint indexed burnFee);
     event PlatformFeeSet(uint indexed platformFee);
@@ -100,7 +104,8 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
     event TaskToppedUp(uint indexed id, uint indexed rewardAmount, address indexed sponsor);
     event ProcessedFees(uint indexed platformFee, uint indexed burnAmount);
     event WithdrawnRewards(address indexed identity, uint indexed amount);
-    event Burned(uint indexed burnAmount, uint indexed recoverAmount);
+    event Burned(uint indexed burnAmount);
+    event Recovered(uint indexed recoverAmount, address indexed recipient);
 
     /***** INITILIAZERS *****/
 
@@ -164,6 +169,7 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 _r,
         bytes32 _s
     ) external returns (uint id) {
+        require(msg.sender == _sponsor || isSponsorAdmin[msg.sender], 'Not authorized');
         try IERC20Permit(address(rewardToken)).permit(_sponsor, address(this), _value, _deadline, _v, _r, _s) {} catch {}
         return createTask(_rewardAmount, _sponsor);
     }
@@ -175,6 +181,7 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
      * @param _sponsor Account from rewards are transfered.
      */
     function createTask(uint _rewardAmount, address _sponsor) public returns (uint id) {
+        require(msg.sender == _sponsor || isSponsorAdmin[msg.sender], 'Not authorized');
         require(_rewardAmount > 0, '_rewardAmount = 0');
         rewardToken.safeTransferFrom(_sponsor, address(this), _rewardAmount);
         uint amountAfterFees = _processFees(_rewardAmount);
@@ -205,6 +212,7 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 _r,
         bytes32 _s
     ) external {
+        require(msg.sender == _sponsor || isSponsorAdmin[msg.sender], 'Not authorized');
         try IERC20Permit(address(rewardToken)).permit(_sponsor, address(this), _value, _deadline, _v, _r, _s) {} catch {}
         topUpTask(_rewardAmount, _id, _sponsor);
     }
@@ -217,6 +225,7 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
      * @param _sponsor Account from rewards are transfered.
      */
     function topUpTask(uint _rewardAmount, uint _id, address _sponsor) public {
+        require(msg.sender == _sponsor || isSponsorAdmin[msg.sender], 'Not authorized');
         require(_rewardAmount > 0, 'Top up amount is 0');
         require(taskRewards.length > _id, 'Task does not exist');
         rewardToken.safeTransferFrom(_sponsor, address(this), _rewardAmount);
@@ -328,6 +337,17 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
 
     /**
      * @notice Set the address of the token admin.
+     * @param _sponsorAdmin Address of the token admin.
+     * @param _isAdmin Weather admin is to be whitelisted.
+     */
+    function setSponsorAdmin(address _sponsorAdmin, bool _isAdmin) external onlyOwner {
+        require(isSponsorAdmin[_sponsorAdmin] != _isAdmin, 'No change');
+        isSponsorAdmin[_sponsorAdmin] = _isAdmin;
+        emit SponsorAdminSet(_sponsorAdmin, _isAdmin);
+    }
+
+    /**
+     * @notice Set the address of the token admin.
      * @param _tokenAdmin Address of the token admin.
      */
     function setTokenAdmin(address _tokenAdmin) external onlyOwner {
@@ -389,17 +409,28 @@ contract RewardDistributorV1LZMock is UUPSUpgradeable, OwnableUpgradeable {
     }
 
     /**
-     * @notice Burn fees to burn and recover some of the rewards for refunds.
-     * @param _recoverAmount Amount of rewards to recover.
+     * @notice Burns a specified amount of tokens, not exceeding the total amount to burn.
+     * @param _burnAmount Amount of tokens to burn.
      */
-    function burnFees(uint _recoverAmount) external onlyOwner {
+    function burnFees(uint _burnAmount) external onlyOwner {
+        require(_burnAmount <= toBurn, 'Exceeds toBurn');
+        require(_burnAmount <= rewardToken.balanceOf(address(this)), 'Exceeds balance');
+        toBurn -= _burnAmount;
+        ERC20Burnable(address(rewardToken)).burn(_burnAmount);
+        emit Burned(_burnAmount);
+    }
+
+    /**
+     * @notice Recovers a specified amount of tokens that were meant to be burned.
+     * @param _recoverAmount Amount of tokens to recover.
+     * @param _recipient Address to send the recovered tokens to.
+     */
+    function recoverFees(uint _recoverAmount, address _recipient) external onlyOwner {
         require(_recoverAmount <= toBurn, 'Exceeds toBurn');
         require(_recoverAmount <= rewardToken.balanceOf(address(this)), 'Exceeds balance');
-        uint burnAmount = toBurn - _recoverAmount;
-        toBurn = 0;
-        if (burnAmount > 0) ERC20Burnable(address(rewardToken)).burn(burnAmount);
-        if (_recoverAmount > 0) rewardToken.safeTransfer(owner(), _recoverAmount);
-        emit Burned(burnAmount, _recoverAmount);
+        toBurn -= _recoverAmount;
+        rewardToken.safeTransfer(_recipient, _recoverAmount);
+        emit Recovered(_recoverAmount, _recipient);
     }
 
     /***** INTERNAL *****/

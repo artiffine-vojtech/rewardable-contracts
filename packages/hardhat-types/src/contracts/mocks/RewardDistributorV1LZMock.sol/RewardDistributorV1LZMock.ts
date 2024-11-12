@@ -61,12 +61,14 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
     "feeReceiver()": FunctionFragment;
     "getSameChainLZSendParam()": FunctionFragment;
     "initialize(address,address,address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "isSponsorAdmin(address)": FunctionFragment;
     "maxDailyWithdrawal()": FunctionFragment;
     "minWithdrawalAmount()": FunctionFragment;
     "owner()": FunctionFragment;
     "platformFee()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "quoteSend(address,uint256,(uint32,uint128,uint128,uint128))": FunctionFragment;
+    "recoverFees(uint256,address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "rewardToken()": FunctionFragment;
     "setBurnFee(uint256)": FunctionFragment;
@@ -74,6 +76,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
     "setMaxDailyWithdrawal(uint256)": FunctionFragment;
     "setMinWithdrawalAmount(uint256)": FunctionFragment;
     "setPlatformFee(uint256)": FunctionFragment;
+    "setSponsorAdmin(address,bool)": FunctionFragment;
     "setTokenAdmin(address)": FunctionFragment;
     "taskRewards(uint256)": FunctionFragment;
     "test()": FunctionFragment;
@@ -99,12 +102,14 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
       | "feeReceiver"
       | "getSameChainLZSendParam"
       | "initialize"
+      | "isSponsorAdmin"
       | "maxDailyWithdrawal"
       | "minWithdrawalAmount"
       | "owner"
       | "platformFee"
       | "proxiableUUID"
       | "quoteSend"
+      | "recoverFees"
       | "renounceOwnership"
       | "rewardToken"
       | "setBurnFee"
@@ -112,6 +117,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
       | "setMaxDailyWithdrawal"
       | "setMinWithdrawalAmount"
       | "setPlatformFee"
+      | "setSponsorAdmin"
       | "setTokenAdmin"
       | "taskRewards"
       | "test"
@@ -174,6 +180,10 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "isSponsorAdmin",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "maxDailyWithdrawal",
     values?: undefined
   ): string;
@@ -197,6 +207,10 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       RewardDistributorV1LZMock.LZSendParamStruct
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "recoverFees",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -225,6 +239,10 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setPlatformFee",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSponsorAdmin",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setTokenAdmin",
@@ -306,6 +324,10 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "isSponsorAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "maxDailyWithdrawal",
     data: BytesLike
   ): Result;
@@ -323,6 +345,10 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "quoteSend", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "recoverFees",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -346,6 +372,10 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setPlatformFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setSponsorAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -383,7 +413,7 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
 
   events: {
     "BurnFeeSet(uint256)": EventFragment;
-    "Burned(uint256,uint256)": EventFragment;
+    "Burned(uint256)": EventFragment;
     "FeeReceiverSet(address)": EventFragment;
     "Initialized(uint64)": EventFragment;
     "MaxDailyWithdrawalSet(uint256)": EventFragment;
@@ -391,6 +421,8 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "PlatformFeeSet(uint256)": EventFragment;
     "ProcessedFees(uint256,uint256)": EventFragment;
+    "Recovered(uint256,address)": EventFragment;
+    "SponsorAdminSet(address,bool)": EventFragment;
     "TaskCreated(uint256,uint256,address)": EventFragment;
     "TaskToppedUp(uint256,uint256,address)": EventFragment;
     "TokenAdminSet(address)": EventFragment;
@@ -407,6 +439,8 @@ export interface RewardDistributorV1LZMockInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PlatformFeeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProcessedFees"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Recovered"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SponsorAdminSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TaskCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TaskToppedUp"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAdminSet"): EventFragment;
@@ -423,9 +457,8 @@ export type BurnFeeSetEventFilter = TypedEventFilter<BurnFeeSetEvent>;
 
 export interface BurnedEventObject {
   burnAmount: BigNumber;
-  recoverAmount: BigNumber;
 }
-export type BurnedEvent = TypedEvent<[BigNumber, BigNumber], BurnedEventObject>;
+export type BurnedEvent = TypedEvent<[BigNumber], BurnedEventObject>;
 
 export type BurnedEventFilter = TypedEventFilter<BurnedEvent>;
 
@@ -500,6 +533,28 @@ export type ProcessedFeesEvent = TypedEvent<
 >;
 
 export type ProcessedFeesEventFilter = TypedEventFilter<ProcessedFeesEvent>;
+
+export interface RecoveredEventObject {
+  recoverAmount: BigNumber;
+  recipient: string;
+}
+export type RecoveredEvent = TypedEvent<
+  [BigNumber, string],
+  RecoveredEventObject
+>;
+
+export type RecoveredEventFilter = TypedEventFilter<RecoveredEvent>;
+
+export interface SponsorAdminSetEventObject {
+  sponsorAdmin: string;
+  isAdmin: boolean;
+}
+export type SponsorAdminSetEvent = TypedEvent<
+  [string, boolean],
+  SponsorAdminSetEventObject
+>;
+
+export type SponsorAdminSetEventFilter = TypedEventFilter<SponsorAdminSetEvent>;
 
 export interface TaskCreatedEventObject {
   id: BigNumber;
@@ -587,7 +642,7 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     burnFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     burnFees(
-      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _burnAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -628,6 +683,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    isSponsorAdmin(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     maxDailyWithdrawal(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     minWithdrawalAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -644,6 +704,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       _lzSendParam: RewardDistributorV1LZMock.LZSendParamStruct,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { nativeFee: BigNumber }>;
+
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -673,6 +739,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setSponsorAdmin(
+      _sponsorAdmin: PromiseOrValue<string>,
+      _isAdmin: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -745,7 +817,7 @@ export interface RewardDistributorV1LZMock extends BaseContract {
   burnFee(overrides?: CallOverrides): Promise<BigNumber>;
 
   burnFees(
-    _recoverAmount: PromiseOrValue<BigNumberish>,
+    _burnAmount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -786,6 +858,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  isSponsorAdmin(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   maxDailyWithdrawal(overrides?: CallOverrides): Promise<BigNumber>;
 
   minWithdrawalAmount(overrides?: CallOverrides): Promise<BigNumber>;
@@ -802,6 +879,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     _lzSendParam: RewardDistributorV1LZMock.LZSendParamStruct,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  recoverFees(
+    _recoverAmount: PromiseOrValue<BigNumberish>,
+    _recipient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -831,6 +914,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
   setPlatformFee(
     _platformFee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setSponsorAdmin(
+    _sponsorAdmin: PromiseOrValue<string>,
+    _isAdmin: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -901,7 +990,7 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     burnFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     burnFees(
-      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _burnAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -942,6 +1031,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    isSponsorAdmin(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     maxDailyWithdrawal(overrides?: CallOverrides): Promise<BigNumber>;
 
     minWithdrawalAmount(overrides?: CallOverrides): Promise<BigNumber>;
@@ -958,6 +1052,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       _lzSendParam: RewardDistributorV1LZMock.LZSendParamStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -985,6 +1085,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setSponsorAdmin(
+      _sponsorAdmin: PromiseOrValue<string>,
+      _isAdmin: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1056,14 +1162,10 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       burnFee?: PromiseOrValue<BigNumberish> | null
     ): BurnFeeSetEventFilter;
 
-    "Burned(uint256,uint256)"(
-      burnAmount?: PromiseOrValue<BigNumberish> | null,
-      recoverAmount?: PromiseOrValue<BigNumberish> | null
+    "Burned(uint256)"(
+      burnAmount?: PromiseOrValue<BigNumberish> | null
     ): BurnedEventFilter;
-    Burned(
-      burnAmount?: PromiseOrValue<BigNumberish> | null,
-      recoverAmount?: PromiseOrValue<BigNumberish> | null
-    ): BurnedEventFilter;
+    Burned(burnAmount?: PromiseOrValue<BigNumberish> | null): BurnedEventFilter;
 
     "FeeReceiverSet(address)"(
       feeReceiver?: PromiseOrValue<string> | null
@@ -1113,6 +1215,24 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       platformFee?: PromiseOrValue<BigNumberish> | null,
       burnAmount?: PromiseOrValue<BigNumberish> | null
     ): ProcessedFeesEventFilter;
+
+    "Recovered(uint256,address)"(
+      recoverAmount?: PromiseOrValue<BigNumberish> | null,
+      recipient?: PromiseOrValue<string> | null
+    ): RecoveredEventFilter;
+    Recovered(
+      recoverAmount?: PromiseOrValue<BigNumberish> | null,
+      recipient?: PromiseOrValue<string> | null
+    ): RecoveredEventFilter;
+
+    "SponsorAdminSet(address,bool)"(
+      sponsorAdmin?: PromiseOrValue<string> | null,
+      isAdmin?: PromiseOrValue<boolean> | null
+    ): SponsorAdminSetEventFilter;
+    SponsorAdminSet(
+      sponsorAdmin?: PromiseOrValue<string> | null,
+      isAdmin?: PromiseOrValue<boolean> | null
+    ): SponsorAdminSetEventFilter;
 
     "TaskCreated(uint256,uint256,address)"(
       id?: PromiseOrValue<BigNumberish> | null,
@@ -1170,7 +1290,7 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     burnFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     burnFees(
-      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _burnAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1209,6 +1329,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    isSponsorAdmin(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     maxDailyWithdrawal(overrides?: CallOverrides): Promise<BigNumber>;
 
     minWithdrawalAmount(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1224,6 +1349,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       _amount: PromiseOrValue<BigNumberish>,
       _lzSendParam: RewardDistributorV1LZMock.LZSendParamStruct,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     renounceOwnership(
@@ -1254,6 +1385,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setSponsorAdmin(
+      _sponsorAdmin: PromiseOrValue<string>,
+      _isAdmin: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1329,7 +1466,7 @@ export interface RewardDistributorV1LZMock extends BaseContract {
     burnFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     burnFees(
-      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _burnAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1370,6 +1507,11 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    isSponsorAdmin(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     maxDailyWithdrawal(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1389,6 +1531,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
       _amount: PromiseOrValue<BigNumberish>,
       _lzSendParam: RewardDistributorV1LZMock.LZSendParamStruct,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    recoverFees(
+      _recoverAmount: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
@@ -1419,6 +1567,12 @@ export interface RewardDistributorV1LZMock extends BaseContract {
 
     setPlatformFee(
       _platformFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSponsorAdmin(
+      _sponsorAdmin: PromiseOrValue<string>,
+      _isAdmin: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

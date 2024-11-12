@@ -5,7 +5,7 @@ import { parseEther } from 'ethers/lib/utils'
 import env from 'hardhat'
 import { BigNumber as bgj } from 'bignumber.js'
 
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import {
   ERC20,
   INonfungiblePositionManager,
@@ -27,20 +27,16 @@ describe('UniV3IncentivesController', function () {
     await env.uniswapV3.deploy(owner)
 
     const reward = (await env.uniswapV3.createERC20(
-      'TOKENA',
-      'TOKENA',
+      'REWARD',
+      'REWARD',
       owner
     )) as ERC20
-    const tokenA = (await env.uniswapV3.createERC20(
-      'TOKENA',
-      'TOKENA',
-      owner
-    )) as ERC20
-    const tokenB = (await env.uniswapV3.createERC20(
-      'TOKENB',
-      'TOKENB',
-      owner
-    )) as ERC20
+
+    const [tokenA, tokenB] = [
+      (await env.uniswapV3.createERC20('TOKENA', 'TOKENA', owner)) as ERC20,
+      (await env.uniswapV3.createERC20('TOKENB', 'TOKENB', owner)) as ERC20,
+    ].sort((a, b) => a.address.localeCompare(b.address))
+
     var mintOptions = {
       signer: owner,
       token0: tokenA.address,
@@ -338,14 +334,23 @@ describe('UniV3IncentivesController', function () {
     })
 
     it('Should revert if nft token0 is incorrect', async () => {
-      const { incentivesController, nft, owner, reward } = await loadFixture(
+      const { incentivesController, nft, owner, tokenB } = await loadFixture(
         deployContractFixture
       )
-      let badToken0 = await env.uniswapV3.createERC20('TOKEN0', 'TOKEN0', owner)
+
+      // mint a token with higher address than tokenB
+      let badToken: Contract | undefined
+      while (true) {
+        badToken = await env.uniswapV3.createERC20('TOKEN0', 'TOKEN0', owner)
+        if (badToken.address > tokenB.address) {
+          break
+        }
+      }
+
       var mintOptions = {
         signer: owner,
-        token0: badToken0.address,
-        token1: reward.address,
+        token0: badToken.address,
+        token1: tokenB.address,
         fee: 3000,
         amount0Desired: 1000,
         amount1Desired: 1000,
@@ -363,16 +368,22 @@ describe('UniV3IncentivesController', function () {
     })
 
     it('Should revert if nft token1 is incorrect', async () => {
-      const { incentivesController, nft, owner, tokenA } = await loadFixture(
-        deployContractFixture
-      )
-      let badToken0 = await env.uniswapV3.createERC20('TOKEN0', 'TOKEN0', owner)
-      let badToken1 = await env.uniswapV3.createERC20('TOKEN0', 'TOKEN0', owner)
+      const { incentivesController, nft, owner, tokenA, posConfig } =
+        await loadFixture(deployContractFixture)
+
+      // mint a token with higher address than tokenA
+      let badToken: Contract | undefined
+      while (true) {
+        badToken = await env.uniswapV3.createERC20('TOKEN0', 'TOKEN0', owner)
+        if (badToken.address > tokenA.address) {
+          break
+        }
+      }
 
       var mintOptions = {
         signer: owner,
         token0: tokenA.address,
-        token1: badToken1.address,
+        token1: badToken.address,
         fee: 3000,
         amount0Desired: 1000,
         amount1Desired: 1000,
@@ -448,33 +459,8 @@ describe('UniV3IncentivesController', function () {
       )
     })
 
-    it('Should transfer nfts correctly with different range', async () => {
-      const { incentivesController, nft, owner, tokenA, tokenB } =
-        await loadFixture(deployContractFixture)
-      var options = {
-        signer: owner,
-        token0: tokenA,
-        token1: tokenB,
-        fee: 3000,
-        amount0Desired: 1000,
-        amount1Desired: 1000,
-        price: 1,
-        tickLower: -60,
-        tickUpper: 60,
-      }
-      const incorrectFee = await mintPosition(nft, options)
-      await nft
-        .connect(owner)
-        .approve(incentivesController.address, incorrectFee)
-      await incentivesController.connect(owner).deposit([incorrectFee])
-
-      expect(await nft.ownerOf(incorrectFee)).to.be.eq(
-        incentivesController.address
-      )
-    })
-
     it('Should transfer nfts correctly with different fee', async () => {
-      const { incentivesController, nft, owner, tokenA, tokenB } =
+      const { incentivesController, nft, owner, tokenA, tokenB, posConfig } =
         await loadFixture(deployContractFixture)
       var options = {
         signer: owner,
@@ -484,8 +470,8 @@ describe('UniV3IncentivesController', function () {
         amount0Desired: 1000,
         amount1Desired: 1000,
         price: 1,
-        tickLower: -60,
-        tickUpper: 60,
+        tickLower: posConfig.tickLower,
+        tickUpper: posConfig.tickUpper,
       }
       const incorrectFee = await mintPosition(nft, options)
       await nft

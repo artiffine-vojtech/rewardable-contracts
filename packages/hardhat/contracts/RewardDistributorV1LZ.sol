@@ -47,7 +47,7 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Address of the reward token.
     IERC20 public rewardToken;
 
-    /// @notice Address that signes data for withdrawals;
+    /// @notice Address that signs data for withdrawals;
     address public tokenAdmin;
 
     /// @notice Address that receives fees after token burn.
@@ -71,6 +71,9 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Total amount of claimed rewards per user.
     mapping(address => uint) public withdrawnRewards;
 
+    /// @notice Addresses that can use other's rewards.
+    mapping(address => bool) public isSponsorAdmin;
+
     /// @notice Total amount of deposited rewards for the task.
     uint[] public taskRewards;
 
@@ -88,6 +91,7 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
     /***** EVENTS *****/
 
     event TokenAdminSet(address indexed tokenAdmin);
+    event SponsorAdminSet(address indexed sponsorAdmin, bool indexed isAdmin);
     event FeeReceiverSet(address indexed feeReceiver);
     event BurnFeeSet(uint indexed burnFee);
     event PlatformFeeSet(uint indexed platformFee);
@@ -161,6 +165,7 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 _r,
         bytes32 _s
     ) external returns (uint id) {
+        require(msg.sender == _sponsor || isSponsorAdmin[msg.sender], 'Not authorized');
         try IERC20Permit(address(rewardToken)).permit(_sponsor, address(this), _value, _deadline, _v, _r, _s) {} catch {}
         return createTask(_rewardAmount, _sponsor);
     }
@@ -172,6 +177,7 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
      * @param _sponsor Account from rewards are transfered.
      */
     function createTask(uint _rewardAmount, address _sponsor) public returns (uint id) {
+        require(msg.sender == _sponsor || isSponsorAdmin[msg.sender], 'Not authorized');
         require(_rewardAmount > 0, '_rewardAmount = 0');
         rewardToken.safeTransferFrom(_sponsor, address(this), _rewardAmount);
         uint amountAfterFees = _processFees(_rewardAmount);
@@ -202,6 +208,7 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 _r,
         bytes32 _s
     ) external {
+        require(msg.sender == _sponsor || isSponsorAdmin[msg.sender], 'Not authorized');
         try IERC20Permit(address(rewardToken)).permit(_sponsor, address(this), _value, _deadline, _v, _r, _s) {} catch {}
         topUpTask(_rewardAmount, _id, _sponsor);
     }
@@ -214,6 +221,7 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
      * @param _sponsor Account from rewards are transfered.
      */
     function topUpTask(uint _rewardAmount, uint _id, address _sponsor) public {
+        require(msg.sender == _sponsor || isSponsorAdmin[msg.sender], 'Not authorized');
         require(_rewardAmount > 0, 'Top up amount is 0');
         require(taskRewards.length > _id, 'Task does not exist');
         rewardToken.safeTransferFrom(_sponsor, address(this), _rewardAmount);
@@ -325,9 +333,21 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
 
     /**
      * @notice Set the address of the token admin.
+     * @param _sponsorAdmin Address of the token admin.
+     * @param _isAdmin Weather admin is to be whitelisted.
+     */
+    function setSponsorAdmin(address _sponsorAdmin, bool _isAdmin) external onlyOwner {
+        require(isSponsorAdmin[_sponsorAdmin] != _isAdmin, 'No change');
+        isSponsorAdmin[_sponsorAdmin] = _isAdmin;
+        emit SponsorAdminSet(_sponsorAdmin, _isAdmin);
+    }
+
+    /**
+     * @notice Set the address of the token admin.
      * @param _tokenAdmin Address of the token admin.
      */
     function setTokenAdmin(address _tokenAdmin) external onlyOwner {
+        require(_tokenAdmin != address(0), 'Zero address');
         tokenAdmin = _tokenAdmin;
         emit TokenAdminSet(_tokenAdmin);
     }
@@ -337,6 +357,7 @@ contract RewardDistributorV1LZ is UUPSUpgradeable, OwnableUpgradeable {
      * @param _feeReceiver Address of the fee receiver.
      */
     function setFeeReceiver(address _feeReceiver) external onlyOwner {
+        require(_feeReceiver != address(0), 'Zero address');
         feeReceiver = _feeReceiver;
         emit FeeReceiverSet(_feeReceiver);
     }
